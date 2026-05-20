@@ -1,0 +1,1872 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Сетка — как остаться в игре</title>
+<style>
+  :root {
+    --bg: #FAF6EF;
+    --card: #FFFEFA;
+    --ink: #2A2622;
+    --mute: #7A6F62;
+    --line: #E7DFCF;
+    --hare: #D86E54;
+    --tort: #6B9E5F;
+    --gold: #C9A55C;
+    --shadow: 0 1px 0 rgba(0,0,0,0.04), 0 8px 24px -16px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    padding: 0 0 100px;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 0 22px; }
+  header { padding: 60px 0 40px; text-align: center; }
+  h1 { font: 700 36px/1.1 Georgia, "Times New Roman", serif; margin: 0 0 8px; letter-spacing: -0.5px; }
+  header .sub { color: var(--mute); font-size: 17px; margin: 0; }
+  h2 {
+    font: 700 24px/1.2 Georgia, serif;
+    margin: 64px 0 10px;
+    letter-spacing: -0.3px;
+  }
+  h2 .num {
+    display: inline-block; min-width: 26px; height: 26px; line-height: 26px;
+    border-radius: 50%; background: var(--ink); color: var(--bg);
+    font: 600 14px/26px -apple-system, sans-serif; text-align: center; margin-right: 10px;
+    vertical-align: 2px;
+  }
+  p { margin: 0 0 18px; }
+  .intro { font-size: 19px; line-height: 1.65; }
+  .quiet { color: var(--mute); }
+  .em { font-style: italic; }
+
+  /* ----- card ----- */
+  .toy {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 22px 20px;
+    margin: 22px 0 28px;
+    box-shadow: var(--shadow);
+  }
+  button {
+    font: 500 15px/1 -apple-system, sans-serif;
+    background: var(--ink);
+    color: var(--bg);
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 18px;
+    cursor: pointer;
+    transition: transform .08s, background .15s, opacity .15s;
+  }
+  button:hover { background: #443c34; }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: 0.35; cursor: default; }
+  button.alt {
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+  }
+  button.alt:hover { background: #F1ECE0; }
+
+  /* ----- scene 1 ----- */
+  .racers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .racer {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+  .racer.ruined { opacity: 0.55; }
+  .racer .face { font-size: 44px; line-height: 1; margin: 4px 0 6px; }
+  .racer .name { font-weight: 600; margin-bottom: 2px; }
+  .racer .strat { font-size: 12px; color: var(--mute); min-height: 28px; line-height: 1.35; }
+  .racer .cap { font: 700 22px/1 Georgia, serif; margin: 8px 0 6px; }
+  .racer .delta { font-size: 12px; height: 16px; color: var(--mute); }
+  .racer .delta.up { color: var(--tort); }
+  .racer .delta.down { color: var(--hare); }
+  .racer.hare { border-top: 3px solid var(--hare); }
+  .racer.tort { border-top: 3px solid var(--tort); }
+
+  .yearbar { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 14px; color: var(--mute); font-size: 14px; }
+  .pips { display: flex; gap: 4px; }
+  .pip { width: 14px; height: 8px; border-radius: 3px; background: var(--line); }
+  .pip.on { background: var(--ink); }
+
+  .reveal {
+    min-height: 64px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  .reveal .sname { font-weight: 600; }
+  .controls { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
+  .verdict {
+    background: #F3EBD8; border-radius: 10px; padding: 14px 16px;
+    margin-top: 14px; font-size: 15px; line-height: 1.55;
+  }
+
+  /* ----- scene 2 (tails) ----- */
+  .tails { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .tails { grid-template-columns: 1fr; } }
+  .tail {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 12px 14px;
+  }
+  .tail .ttl { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+  .tail .sub { color: var(--mute); font-size: 12px; margin-bottom: 8px; }
+  .tail canvas { width: 100%; height: 130px; display: block; background: #FFFEFA; border-radius: 8px; border: 1px solid var(--line); }
+  .tail .worst { font-size: 12px; color: var(--mute); margin-top: 8px; }
+  .tail .worst b { color: var(--hare); font-weight: 600; }
+
+  /* ----- scene 3 (one vs many) ----- */
+  .runs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .runs { grid-template-columns: 1fr; } }
+  .strategy {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px;
+  }
+  .strategy.bold-bet { border-top: 3px solid var(--hare); }
+  .strategy.steady { border-top: 3px solid var(--tort); }
+  .strategy h4 { font: 600 15px/1.2 -apple-system, sans-serif; margin: 0 0 4px; }
+  .strategy .rule { font-size: 13px; color: var(--mute); min-height: 36px; margin-bottom: 8px; line-height: 1.4; }
+  .strategy .cap { font: 700 22px/1 Georgia, serif; margin: 6px 0 4px; }
+  .strategy .end { font-size: 12px; color: var(--mute); height: 16px; }
+  .traj { height: 38px; margin-top: 8px; position: relative; }
+  .traj svg { width: 100%; height: 100%; display: block; }
+
+  footer { text-align: center; color: var(--mute); font-size: 13px; padding: 36px 0 0; line-height: 1.6; }
+  footer p { margin: 6px 0; }
+
+  .hint { font-size: 13.5px; color: var(--mute); font-style: italic; margin-top: -8px; margin-bottom: 14px; }
+
+  /* ----- scene 4 (player turn) ----- */
+  .you-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .you-cap { font: 700 26px/1 Georgia, serif; }
+  .buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0 12px; }
+  @media (max-width: 480px) { .buckets { grid-template-columns: 1fr; } }
+  .bucket { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .bucket .b-label { font-size: 11px; color: var(--mute); letter-spacing: 0.5px; }
+  .bucket .b-name { font-weight: 600; margin: 2px 0 4px; font-size: 14px; }
+  .bucket .b-sub { font-size: 12px; color: var(--mute); margin-bottom: 8px; line-height: 1.35; min-height: 32px; }
+  .bucket .b-ctl { display: flex; align-items: center; gap: 8px; }
+  .bucket button.sgx { width: 28px; height: 28px; padding: 0; border-radius: 8px; font-size: 16px; line-height: 1; }
+  .bucket .b-val { font-weight: 600; min-width: 18px; text-align: center; font-size: 16px; }
+  .bucket.a { border-top: 3px solid var(--gold); }
+  .bucket.b { border-top: 3px solid var(--tort); }
+  .bucket.c { border-top: 3px solid #6889B0; }
+  .bucket.d { border-top: 3px solid #A878C0; }
+  .left-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); font-size: 13px; color: var(--mute); }
+
+  /* ----- scene 6 (calibration) ----- */
+  .q { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .q.done { opacity: 0.75; }
+  .q .qtxt { margin-bottom: 10px; font-size: 15px; line-height: 1.45; }
+  .q-choice { display: flex; gap: 6px; flex-wrap: wrap; }
+  .q-choice button { background: transparent; color: var(--ink); border: 1px solid var(--line); padding: 6px 11px; font-size: 13px; border-radius: 8px; }
+  .q-choice button:hover { background: #F1ECE0; }
+  .q .result { font-size: 13px; margin-top: 10px; line-height: 1.45; }
+  .q .result.ok { color: var(--tort); }
+  .q .result.bad { color: var(--hare); }
+
+  /* ----- scene 7 (premortem) ----- */
+  .decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 560px){ .decision-grid { grid-template-columns: 1fr; } }
+  .decision {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; cursor: pointer; text-align: left;
+    font: 500 14px/1.35 -apple-system, sans-serif; color: var(--ink);
+  }
+  .decision:hover { background: #F1ECE0; }
+  .decision.active { background: var(--ink); color: var(--bg); }
+  .risk { display: flex; gap: 10px; padding: 7px 6px; align-items: flex-start; }
+  .risk input { margin-top: 4px; flex-shrink: 0; }
+  .risk label { font-size: 14px; line-height: 1.45; cursor: pointer; flex: 1; }
+
+  /* ----- scene 8 (barbell) ----- */
+  .portfolios { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .portfolios { grid-template-columns: 1fr; } }
+  .port { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .port h4 { font: 600 14px/1.2 -apple-system, sans-serif; margin: 0 0 8px; }
+  .port.mid { border-top: 3px solid #6889B0; }
+  .port.even { border-top: 3px solid var(--tort); }
+  .port.bar { border-top: 3px solid var(--gold); }
+  .shape { display: flex; align-items: flex-end; gap: 3px; height: 38px; margin: 4px 0 8px; padding: 2px 4px; background: var(--card); border-radius: 4px; border: 1px solid var(--line); }
+  .shape .bar { flex: 1; border-radius: 2px 2px 0 0; min-height: 1px; transition: height .3s; }
+  .port.mid .shape .bar { background: #6889B0; }
+  .port.even .shape .bar { background: var(--tort); }
+  .port.bar .shape .bar { background: var(--gold); }
+  .port .cap { font: 700 20px/1 Georgia, serif; margin: 6px 0 2px; }
+  .port .end { font-size: 13px; color: var(--mute); height: 16px; }
+
+  /* ----- scene 9 (Kelly) ----- */
+  .kelly-line { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; font-size: 14px; color: var(--mute); }
+  .kelly-val { font: 700 18px/1 Georgia, serif; color: var(--ink); }
+  #s9-slider, #s10-p, #s10-n { width: 100%; }
+  #s9-canvas { width: 100%; height: 180px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; display: block; margin: 12px 0 10px; }
+  .kelly-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 8px 0; }
+  @media (max-width: 480px) { .kelly-grid { grid-template-columns: 1fr; } }
+  .kelly-cell { background: var(--bg); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .kelly-cell .lbl { font-size: 11px; color: var(--mute); }
+  .kelly-cell .val { font: 700 18px/1.2 Georgia, serif; margin-top: 4px; }
+
+  /* ----- scene 10 (time and ruin) ----- */
+  .time-row { margin-bottom: 14px; }
+  .time-label { font-size: 13px; color: var(--mute); margin-bottom: 4px; }
+  .time-input { display: flex; align-items: center; gap: 12px; }
+  .time-input input { flex: 1; }
+  .time-val { font: 700 16px/1 Georgia, serif; min-width: 76px; text-align: right; }
+  #s10-canvas { width: 100%; height: 100px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; display: block; margin: 8px 0; }
+  .time-result { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px; background: var(--bg); border-radius: 8px; margin-top: 8px; }
+  .time-result-label { font-size: 14px; color: var(--mute); }
+  .time-result-val { font: 700 30px/1 Georgia, serif; color: var(--hare); }
+
+  /* ----- scene 11 (convexity) ----- */
+  #s11-canvas { width: 100%; height: 260px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; display: block; margin: 4px 0 0; }
+  #s11-slider { width: 100%; }
+
+  /* ----- scene 12 (bayes) ----- */
+  .bayes-row { margin-bottom: 12px; }
+  #s12-prior { width: 100%; }
+  .bayes-result { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px; background: var(--bg); border-radius: 8px; margin: 10px 0; }
+  .bayes-result-label { font-size: 14px; color: var(--mute); }
+  .bayes-result-val { font: 700 30px/1 Georgia, serif; }
+  .bayes-history { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 12px 0; min-height: 26px; }
+  .bayes-pill { padding: 4px 10px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); color: var(--ink); font-weight: 500; font-size: 13px; }
+  .bayes-arrow { color: var(--mute); font-size: 14px; font-weight: 600; }
+  .bayes-arrow.pos { color: var(--tort); }
+  .bayes-arrow.neg { color: var(--hare); }
+  button.bayes-btn-pos { background: transparent; color: var(--tort); border: 1px solid var(--tort); }
+  button.bayes-btn-pos:hover { background: rgba(107,158,95,0.12); }
+  button.bayes-btn-neg { background: transparent; color: var(--hare); border: 1px solid var(--hare); }
+  button.bayes-btn-neg:hover { background: rgba(216,110,84,0.12); }
+
+  /* ----- scene 13 (sequence) ----- */
+  #s13-w { width: 100%; }
+  #s13-canvas-a, #s13-canvas-b { width: 100%; height: 110px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; display: block; margin: 8px 0 6px; }
+
+  /* ----- scene 14 (takeaways) ----- */
+  .takeaway { background: var(--bg); border-left: 3px solid var(--gold); padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 15px; line-height: 1.55; }
+  .reading { font-size: 14.5px; line-height: 1.7; }
+  .reading b { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>Сетка</h1>
+  <p class="sub">как остаться в игре, когда не знаешь будущего</p>
+</header>
+
+<p class="intro">
+  Жили-были двое. Один считал, что умеет угадывать будущее, и каждый раз ставил всё на свой
+  главный прогноз. Второй честно признавался, что будущего не знает,
+  и поэтому раскладывал понемножку в разные стороны.
+</p>
+<p class="intro">
+  Прошло десять лет. Давай посмотрим, кто остался в игре.
+</p>
+
+<!-- ============================================================
+     SCENE 1
+============================================================ -->
+<h2><span class="num">1</span>Заяц и черепаха</h2>
+<p>
+  Каждый из них вкладывает условную тысячу. Раз в год случается одно из пяти будущих —
+  и в зависимости от него каждая ставка либо растёт, либо рушится.
+  Заяц всегда ставит всё на «всё пойдёт по плану». Черепаха раскладывает на четыре корзины поровну-ишь.
+</p>
+
+<div class="toy" id="scene1">
+  <div class="racers">
+    <div class="racer hare" id="hare">
+      <div class="face">🐰</div>
+      <div class="name">Заяц</div>
+      <div class="strat">всё в одну корзину «по плану»</div>
+      <div class="cap" id="hare-cap">1000</div>
+      <div class="delta" id="hare-delta">&nbsp;</div>
+    </div>
+    <div class="racer tort" id="tort">
+      <div class="face">🐢</div>
+      <div class="name">Черепаха</div>
+      <div class="strat">сетка по четырём корзинам</div>
+      <div class="cap" id="tort-cap">1000</div>
+      <div class="delta" id="tort-delta">&nbsp;</div>
+    </div>
+  </div>
+  <div class="yearbar">
+    <span>год <span id="year">0</span> из 10</span>
+    <div class="pips" id="pips"></div>
+  </div>
+  <div class="reveal" id="reveal-1">
+    Жми «Прожить год» — посмотрим, какое будущее выпадет.
+  </div>
+  <div class="controls">
+    <button id="b-step">Прожить год</button>
+    <button id="b-auto" class="alt">Быстро до конца</button>
+    <button id="b-reset" class="alt">Сначала</button>
+  </div>
+  <div class="verdict" id="verdict-1" style="display:none"></div>
+</div>
+
+<p>
+  Если повторить эту прогулку много раз, увидишь закономерность: иногда заяц чудовищно богатеет,
+  иногда обнуляется в первый же неудачный год. Черепаха растёт скучно, но <em>всегда</em> доходит до финиша.
+</p>
+<p>
+  Это не «о морали труда». Это про математику дисперсии:
+  концентрированная ставка может выиграть только если успеет накопить раньше, чем встретит свой плохой год.
+  А плохой год, если ждать достаточно долго, приходит почти всегда.
+</p>
+
+<!-- ============================================================
+     SCENE 2
+============================================================ -->
+<h2><span class="num">2</span>Хвосты будущего</h2>
+<p>
+  Почему так получается? Потому что реальная жизнь — это не та аккуратная колоколообразная кривая,
+  которую рисуют в учебниках. Слева — мир из учебника (нормальное распределение).
+  Справа — мир, как он есть на самом деле.
+</p>
+
+<div class="toy">
+  <div class="tails">
+    <div class="tail">
+      <div class="ttl">Мир из учебника</div>
+      <div class="sub">всё происходит «в среднем»</div>
+      <canvas id="cv-norm" width="600" height="260"></canvas>
+      <div class="worst">худший день: <b id="w-norm">—</b></div>
+    </div>
+    <div class="tail">
+      <div class="ttl">Реальный мир</div>
+      <div class="sub">с толстыми хвостами</div>
+      <canvas id="cv-fat" width="600" height="260"></canvas>
+      <div class="worst">худший день: <b id="w-fat">—</b></div>
+    </div>
+  </div>
+  <div class="controls" style="margin-top:14px">
+    <button id="b-throw">Бросить 50 событий</button>
+    <button id="b-throw-clear" class="alt">Очистить</button>
+  </div>
+</div>
+
+<p>
+  В мире из учебника всё клубится у нуля: события колеблются, но никогда не уносятся далеко.
+  В реальном мире 90% дней такие же — а 10% выбрасывают тебя в зону, которой учебник <em>не</em> предсказывал.
+  Один из этих 10% и есть «чёрный лебедь», о котором писал Талеб.
+</p>
+<p>
+  Главный практический вывод: когда ты прикидываешь риск «по среднему», ты не оценил риск.
+  Цена не в среднем, цена — в худшем дне. И худший день в реальном мире намного хуже, чем в твоей модели.
+</p>
+
+<!-- ============================================================
+     SCENE 3
+============================================================ -->
+<h2><span class="num">3</span>Одна ставка против двадцати</h2>
+<p>
+  Окей, но если толстые хвосты редкие, может, на них всё-таки можно не обращать внимания?
+  Давай посмотрим на двух игроков ещё раз — но теперь с очень разными правилами.
+</p>
+<p>
+  «Смелая ставка»: 60% шанс удвоить капитал, 40% шанс потерять всё. Математическое ожидание +20% за раунд.
+  «Скучная ставка»: 75% шанс +10%, 25% шанс −5%. Математическое ожидание +6% за раунд.
+  По учебнику смелая выгоднее почти в четыре раза. Давай посмотрим в один раунд, а потом в двадцать.
+</p>
+
+<div class="toy">
+  <div class="runs">
+    <div class="strategy bold-bet" id="bold">
+      <h4>Смелая ставка</h4>
+      <div class="rule">60% → ×2, 40% → ×0</div>
+      <div class="cap" id="bold-cap">1000</div>
+      <div class="end" id="bold-end">&nbsp;</div>
+      <div class="traj"><svg id="bold-svg" viewBox="0 0 200 38" preserveAspectRatio="none"></svg></div>
+    </div>
+    <div class="strategy steady" id="steady">
+      <h4>Скучная ставка</h4>
+      <div class="rule">75% → +10%, 25% → −5%</div>
+      <div class="cap" id="steady-cap">1000</div>
+      <div class="end" id="steady-end">&nbsp;</div>
+      <div class="traj"><svg id="steady-svg" viewBox="0 0 200 38" preserveAspectRatio="none"></svg></div>
+    </div>
+  </div>
+  <div class="controls" style="margin-top:14px">
+    <button id="b-one">Сыграть 1 раунд</button>
+    <button id="b-twenty">Сыграть 20 раундов</button>
+    <button id="b-reset3" class="alt">Сначала</button>
+  </div>
+  <div class="verdict" id="verdict-3" style="display:none"></div>
+</div>
+
+<p>
+  В одном раунде смелая ставка часто выглядит блестяще. Но если играть двадцать раз подряд,
+  с компаундингом, шанс смелой пройти весь путь без единого нуля ≈ 0,6²⁰ ≈ <b>0,4%</b>.
+  В 99,6% случаев ты обнулишься где-то по дороге — и больше не отыграешься.
+  Скучная же ставка в среднем приходит к ≈3× от стартового капитала.
+</p>
+<p>
+  Математическое ожидание считает деньги <em>в среднем</em>. А ты живёшь одну конкретную траекторию.
+  И на конкретной траектории то, что тебя обнулило, важнее того, что было в среднем.
+</p>
+
+<!-- ============================================================
+     SCENE 4
+============================================================ -->
+<h2><span class="num">4</span>Машина сценариев — твоя очередь</h2>
+<p>
+  Хватит смотреть, как играют другие. Расставь фишки сам. У тебя десять фишек, четыре корзины и шесть лет.
+</p>
+<p class="hint">
+  «Идеальный» — ставка на «всё пойдёт по плану». «50 и −100» — направление верное, но конкретные активы могут подвести. «Страховки» платят, когда сценарий уходит вбок. «Wildcards» — асимметричные ставки, обычно ничего не приносят, но иногда взрываются вверх в десять раз.
+</p>
+
+<div class="toy" id="scene4">
+  <div class="you-bar">
+    <div class="left-pill">год <span id="s4-year">1</span> из 6</div>
+    <div class="you-cap" id="s4-cap">1000</div>
+  </div>
+  <div class="buckets">
+    <div class="bucket a">
+      <div class="b-label">A</div>
+      <div class="b-name">Идеальный</div>
+      <div class="b-sub">всё реализуется как задумано</div>
+      <div class="b-ctl">
+        <button class="sgx" data-s4="a" data-d="-1">−</button>
+        <span class="b-val" id="s4-a">0</span>
+        <button class="sgx" data-s4="a" data-d="1">+</button>
+      </div>
+    </div>
+    <div class="bucket b">
+      <div class="b-label">B</div>
+      <div class="b-name">«50 и −100»</div>
+      <div class="b-sub">сценарий верен, активы — нет</div>
+      <div class="b-ctl">
+        <button class="sgx" data-s4="b" data-d="-1">−</button>
+        <span class="b-val" id="s4-b">0</span>
+        <button class="sgx" data-s4="b" data-d="1">+</button>
+      </div>
+    </div>
+    <div class="bucket c">
+      <div class="b-label">C</div>
+      <div class="b-name">Страховки</div>
+      <div class="b-sub">когда всё пошло не туда</div>
+      <div class="b-ctl">
+        <button class="sgx" data-s4="c" data-d="-1">−</button>
+        <span class="b-val" id="s4-c">0</span>
+        <button class="sgx" data-s4="c" data-d="1">+</button>
+      </div>
+    </div>
+    <div class="bucket d">
+      <div class="b-label">D</div>
+      <div class="b-name">Wildcards</div>
+      <div class="b-sub">асимметричные ставки на ЧП</div>
+      <div class="b-ctl">
+        <button class="sgx" data-s4="d" data-d="-1">−</button>
+        <span class="b-val" id="s4-d">0</span>
+        <button class="sgx" data-s4="d" data-d="1">+</button>
+      </div>
+    </div>
+  </div>
+  <div class="reveal" id="s4-reveal">осталось фишек: <b id="s4-left">10</b>. Распредели их и жми «Прожить год».</div>
+  <div class="controls">
+    <button id="s4-step" disabled>Прожить год</button>
+    <button id="s4-reset" class="alt">Сначала</button>
+  </div>
+  <div class="verdict" id="s4-verdict" style="display:none"></div>
+</div>
+
+<p>
+  Попробуй на одном прогоне «9 в A, 1 в C» — заметишь, как один плохой год тебя сносит. На другом сыграй «3-3-2-2» — скучно, но всегда жив. Это и есть метод одной фразой.
+</p>
+
+<!-- ============================================================
+     SCENE 5
+============================================================ -->
+<h2><span class="num">5</span>Чёрный лебедь</h2>
+<p>
+  Самая хитрая корзина — wildcards. Большую часть времени она выглядит как мёртвый груз: ничего не приносит, занимает место. Её хочется убрать. Так делают почти все.
+</p>
+<p>
+  А потом случается то, чего никто не ожидал — и в этот момент wildcards оказываются единственным, что вообще зелёное.
+</p>
+
+<div class="toy" id="scene5">
+  <div class="runs">
+    <div class="strategy" style="border-top:3px solid var(--mute)">
+      <h4>«Без лотерейных билетов»</h4>
+      <div class="rule">A=4 · B=3 · C=3 · D=0</div>
+      <div class="cap" id="s5-noD-cap">1000</div>
+      <div class="end" id="s5-noD-end">&nbsp;</div>
+    </div>
+    <div class="strategy" style="border-top:3px solid #A878C0">
+      <h4>«С маленьким D»</h4>
+      <div class="rule">A=3 · B=3 · C=2 · D=2</div>
+      <div class="cap" id="s5-withD-cap">1000</div>
+      <div class="end" id="s5-withD-end">&nbsp;</div>
+    </div>
+  </div>
+  <div class="reveal" id="s5-reveal" style="margin-top:14px">
+    Жми кнопку — и увидишь, что бывает, когда случается «чёрный лебедь».
+  </div>
+  <div class="controls" style="margin-top:14px">
+    <button id="s5-go">Случилось что-то непредвиденное</button>
+    <button id="s5-reset" class="alt">Сначала</button>
+  </div>
+</div>
+
+<p>
+  Маленький размер D — это не баловство и не диверсификация ради диверсификации. Это страховка от того, чего ты не предусмотрел, потому что не мог. Соблазн её убрать в скучные годы — и есть та ловушка, которую готовит тебе твоё же терпение.
+</p>
+
+<!-- ============================================================
+     SCENE 6
+============================================================ -->
+<h2><span class="num">6</span>Сила переоценки</h2>
+<p>
+  Окей, сетка работает только если ты честно умеешь оценивать вероятности. Большинство людей переоценивает свою уверенность. Давай проверим тебя на пяти простых вопросах. Для каждого выбери, верно это или нет, и насколько ты в этом уверен.
+</p>
+
+<div class="toy" id="scene6">
+  <div id="s6-quiz"></div>
+  <div class="verdict" id="s6-result" style="display:none"></div>
+  <div class="controls" style="margin-top:14px;display:none" id="s6-controls">
+    <button id="s6-reset" class="alt">Сыграть заново</button>
+  </div>
+</div>
+
+<p>
+  Не страшно, если первый прогон показал перекос — это нормально. По исследованиям Тэтлока, после нескольких сотен таких упражнений с обратной связью люди начинают калиброваться лучше, чем штатные эксперты. Главное — давать численные оценки и регулярно сверяться с реальностью.
+</p>
+
+<!-- ============================================================
+     SCENE 7
+============================================================ -->
+<h2><span class="num">7</span>Премортем</h2>
+<p>
+  Лучший способ найти риски, которых ты сейчас не видишь — представить, что катастрофа уже произошла, и спросить «как это получилось?». Это называется premortem. Десять минут такого упражнения часто меняют решение целиком.
+</p>
+<p>
+  Выбери своё ближайшее значимое решение — и я покажу, на что обычно смотрят люди в той же ситуации, глядя на свои руины через год.
+</p>
+
+<div class="toy" id="scene7">
+  <div class="decision-grid">
+    <button class="decision" data-d="job">Сменить работу или индустрию</button>
+    <button class="decision" data-d="biz">Запустить своё дело</button>
+    <button class="decision" data-d="buy">Большая трата (квартира, переезд)</button>
+    <button class="decision" data-d="rel">Серьёзный шаг в отношениях</button>
+  </div>
+  <div id="s7-list" style="display:none">
+    <p style="font-size:14.5px;color:var(--mute);margin-bottom:10px">Прошёл год, и решение обернулось плохо. Отметь то, что реально могло бы тебя выкинуть из строя:</p>
+    <div id="s7-risks"></div>
+    <div class="controls" style="margin-top:12px">
+      <button id="s7-done">Готово, покажи список</button>
+    </div>
+    <div class="verdict" id="s7-verdict" style="display:none"></div>
+  </div>
+</div>
+
+<p>
+  Премортем — это инверсия. Не «как мне преуспеть», а «как я могу провалиться». Чарли Мангер пользуется этим инструментом всю жизнь и говорит, что часто проще понять, чего избегать, чем как выиграть.
+</p>
+
+<!-- ============================================================
+     SCENE 8 — Барбелл по Талебу
+============================================================ -->
+<h2><span class="num">8</span>Барбелл по Талебу</h2>
+<p>
+  Талеб собирает всё это в одну метафору — «штанга». Бывают три типа портфелей. «Всё в середине» (классические 60/40 акции/облигации) — концентрируется на средне-рисковом. «Бельевая верёвка» — равномерно по всем уровням риска. «Штанга» — много очень безопасного и немного очень рискованного, всю серёдку выкидываем.
+</p>
+
+<div class="toy" id="scene8">
+  <div class="portfolios">
+    <div class="port mid">
+      <h4>Всё в середине</h4>
+      <div class="shape" id="s8-shape-mid"></div>
+      <div class="cap" id="s8-mid-cap">1000</div>
+      <div class="end" id="s8-mid-end">&nbsp;</div>
+    </div>
+    <div class="port even">
+      <h4>Бельевая верёвка</h4>
+      <div class="shape" id="s8-shape-even"></div>
+      <div class="cap" id="s8-even-cap">1000</div>
+      <div class="end" id="s8-even-end">&nbsp;</div>
+    </div>
+    <div class="port bar">
+      <h4>Штанга</h4>
+      <div class="shape" id="s8-shape-bar"></div>
+      <div class="cap" id="s8-bar-cap">1000</div>
+      <div class="end" id="s8-bar-end">&nbsp;</div>
+    </div>
+  </div>
+  <div class="reveal" id="s8-reveal" style="margin-top:14px">
+    Слева направо в каждом портфеле: ультра-надёжное → надёжное → среднее → рискованное → wildcards. Жми кнопку — увидишь, что бывает в обычный год и в кризис.
+  </div>
+  <div class="controls" style="margin-top:14px">
+    <button id="s8-normal">Спокойный год</button>
+    <button id="s8-crisis">Случился кризис</button>
+    <button id="s8-reset" class="alt">Сначала</button>
+  </div>
+</div>
+
+<p>
+  В спокойные годы «середина» обходит штангу — потому что штанга платит премию за то, что половина капитала простаивает в ультра-надёжном, а другая половина в лотерейных билетах. Зато в кризис эта же конструкция оказывается единственной, кто не съёжился: безопасная часть устояла, а рискованная выстрелила на хаосе. «Бельевая верёвка» застряла где-то посередине — нигде не побеждает по-настоящему.
+</p>
+
+<!-- ============================================================
+     SCENE 9 — Критерий Келли
+============================================================ -->
+<h2><span class="num">9</span>Критерий Келли</h2>
+<p>
+  Понятно, что ставить надо НА что-то — но какой долей капитала? Возьмём простую игру. На каждом ходу ставишь часть капитала. С вероятностью p твоя ставка удваивается, с вероятностью 1−p ты её теряешь. Шанс p ты задашь сам верхним слайдером — это твой «edge», то, насколько ты вообще уверен в этой ставке.
+</p>
+<p>
+  Кажется, ставь побольше — заработаешь побольше. Но дальше начинается контр-интуитивное: если ставить слишком много, ты теряешь деньги несмотря на положительное матожидание каждой отдельной ставки. Это и называется критерием Келли. И — внимание — оптимальная доля зависит от твоего edge: чем выше шанс выиграть, тем больше можно ставить. Подвигай оба слайдера.
+</p>
+
+<div class="toy" id="scene9">
+  <div class="kelly-line">
+    <span>Шанс выиграть ставку</span>
+    <span class="kelly-val"><span id="s9-p">60</span>%</span>
+  </div>
+  <input type="range" id="s9-p-slider" min="51" max="85" value="60" step="1" />
+
+  <div class="kelly-line" style="margin-top:14px">
+    <span>Доля капитала на каждую ставку</span>
+    <span class="kelly-val"><span id="s9-frac">20</span>%</span>
+  </div>
+  <input type="range" id="s9-slider" min="0" max="100" value="20" />
+
+  <canvas id="s9-canvas" width="640" height="180"></canvas>
+
+  <div class="kelly-grid">
+    <div class="kelly-cell"><div class="lbl">после 100 ставок</div><div class="val" id="s9-end">—</div></div>
+    <div class="kelly-cell"><div class="lbl">долгосрочный рост / ставку</div><div class="val" id="s9-growth">—</div></div>
+    <div class="kelly-cell"><div class="lbl">оптимум Келли сейчас</div><div class="val" id="s9-opt">20%</div></div>
+  </div>
+
+  <div class="reveal" id="s9-reveal" style="margin-top:14px"></div>
+  <div class="controls" style="margin-top:10px">
+    <button id="s9-shuffle" class="alt">Другая последовательность</button>
+  </div>
+</div>
+
+<p>
+  Ноль — не растёшь. 20% — «полный Келли» для этой игры, точка максимального долгосрочного роста. Дальше каждая лишняя доля сверху Келли начинает СНИЖАТЬ долгосрочный рост, хотя матожидание каждой одиночной ставки остаётся положительным. На 40% ты уже близко к нулю по росту, на 60% и выше — стабильно теряешь. На 100% любой первый проигрыш — это конец.
+</p>
+<p>
+  На практике используют «половинный Келли» — берут 50% от формульной рекомендации (в нашем случае 10%). Это страховка от собственной ошибки в оценке вероятностей: лучше расти медленнее, чем взорваться, потому что ты неверно оценил свой edge.
+</p>
+
+<!-- ============================================================
+     SCENE 10 — Время и разорение
+============================================================ -->
+<h2><span class="num">10</span>Время и разорение</h2>
+<p>
+  Последняя контр-интуитивная вещь, и одна из самых важных. Кажется, что 5% годовой шанс плохого исхода — это «почти безопасно». На самом деле 5% в год — это 23% за пять лет, 40% за десять, 64% за двадцать. Время — главный враг любого постоянного риска, даже маленького.
+</p>
+
+<div class="toy" id="scene10">
+  <div class="time-row">
+    <div class="time-label">Годовой шанс обнулиться</div>
+    <div class="time-input">
+      <input type="range" id="s10-p" min="1" max="30" value="5" />
+      <span class="time-val"><span id="s10-pv">5</span>%</span>
+    </div>
+  </div>
+  <div class="time-row">
+    <div class="time-label">Сколько лет ты собираешься играть</div>
+    <div class="time-input">
+      <input type="range" id="s10-n" min="1" max="30" value="10" />
+      <span class="time-val"><span id="s10-nv">10</span> лет</span>
+    </div>
+  </div>
+
+  <canvas id="s10-canvas" width="640" height="100"></canvas>
+  <div style="font-size:12px;color:var(--mute);text-align:center;margin-top:4px">зелёное — шанс выжить, красное — шанс быть выбитым; год за годом слева направо</div>
+
+  <div class="time-result">
+    <div class="time-result-label">Шанс хоть раз обнулиться за этот срок:</div>
+    <div class="time-result-val" id="s10-result">40%</div>
+  </div>
+</div>
+
+<p>
+  Это и есть ответ на вопрос «можно ли с этим жить». 1% риск в год — не страшно, ты с ним проиграешь полжизни и почти всегда жив. 10% — за 7 лет шанс обнуления больше 50%. 30% — практически гарантированное разорение за десятилетие. Поэтому Талеб и Кримсон с такой одержимостью говорят про размер ставки и про крайнюю важность защиты от обнуления: на длинной дистанции даже маленький постоянный шанс полной потери — это финал, просто отсроченный.
+</p>
+
+<!-- ============================================================
+     SCENE 11 — Конвексность
+============================================================ -->
+<h2><span class="num">11</span>Конвексность — форма твоей ставки</h2>
+<p>
+  У каждой позиции есть «форма» — график того, как твой результат меняется в зависимости от того, насколько реальность отошла от ожидания. Чаще всего эта форма — прямая: реальность сдвинулась на 5%, ты тоже на 5%. Но есть две другие интересные формы, и они объясняют половину магии штанги.
+</p>
+<p>
+  Подвигай слайдер: он двигает «насколько реальность отклонилась от твоего прогноза». Три кривые — три типа позиции: <b>прямая ставка</b> (обычные акции), <b>продажа волатильности</b> (собираешь премию, теряешь на больших движениях) и <b>длинная конвексная</b> (платишь премию, выигрываешь на больших движениях). Точки на кривых — где ты сейчас оказался.
+</p>
+
+<div class="toy" id="scene11">
+  <canvas id="s11-canvas" width="640" height="260"></canvas>
+  <div class="kelly-line" style="margin-top:10px">
+    <span>Реальность отклонилась от прогноза на</span>
+    <span class="kelly-val"><span id="s11-xv">0</span>%</span>
+  </div>
+  <input type="range" id="s11-slider" min="-15" max="15" value="0" step="1" />
+  <div class="kelly-grid" style="margin-top:10px">
+    <div class="kelly-cell" style="border-top:3px solid #6889B0"><div class="lbl">прямая ставка</div><div class="val" id="s11-lin">—</div></div>
+    <div class="kelly-cell" style="border-top:3px solid var(--hare)"><div class="lbl">продажа волатильности</div><div class="val" id="s11-con">—</div></div>
+    <div class="kelly-cell" style="border-top:3px solid var(--gold)"><div class="lbl">длинная конвексная</div><div class="val" id="s11-cvx">—</div></div>
+  </div>
+  <div class="reveal" id="s11-reveal" style="margin-top:14px"></div>
+</div>
+
+<p>
+  Главный вывод этого графика: размер позиции — это сколько ты ставишь, а ФОРМА позиции — это что она делает в зависимости от того, что случится. Большинство людей думают только про первое. Талеб всю свою книгу про второе. Маленькая позиция с конвексной формой может стоить дороже большой линейной — потому что её выигрыш в кризис не растёт пропорционально размеру, а взрывается. А средняя позиция с вогнутой формой («собираю премию каждый день») выглядит стабильной восемь лет подряд — пока девятый год не съест всё.
+</p>
+
+<!-- ============================================================
+     SCENE 12 — Байесовское обновление
+============================================================ -->
+<h2><span class="num">12</span>Байесовское обновление</h2>
+<p>
+  Калибровка (сцена 6) научила тебя честно оценивать вероятности. Но это только половина дела. Вторая половина — уметь МЕНЯТЬ свою оценку, когда приходит новая информация. Большинство людей этого не делают: они либо застревают на первой интуиции, либо, наоборот, дёргаются от каждого сигнала.
+</p>
+<p>
+  Представь: ты оцениваешь шансы какого-то будущего (стартап взлетит, кандидат сработается, идея найдёт рынок). Стартовая уверенность — слайдер ниже. Каждый новый сигнал диагностический примерно 70/30 (умеренно информативный — типичный реальный сигнал). Жми кнопки и смотри, как должна меняться твоя оценка.
+</p>
+
+<div class="toy" id="scene12">
+  <div class="bayes-row">
+    <div class="time-label">Стартовая уверенность</div>
+    <div class="time-input">
+      <input type="range" id="s12-prior" min="1" max="99" value="50" step="1" />
+      <span class="time-val"><span id="s12-pv">50</span>%</span>
+    </div>
+  </div>
+
+  <div class="bayes-result">
+    <div class="bayes-result-label">Текущая оценка после сигналов:</div>
+    <div class="bayes-result-val" id="s12-now">50%</div>
+  </div>
+
+  <div class="bayes-history" id="s12-hist"></div>
+
+  <div class="controls" style="margin-top:10px">
+    <button id="s12-pos" class="bayes-btn-pos">+ позитивный сигнал</button>
+    <button id="s12-neg" class="bayes-btn-neg">− негативный сигнал</button>
+    <button id="s12-reset" class="alt">Сначала</button>
+  </div>
+
+  <div class="reveal" id="s12-reveal" style="margin-top:14px"></div>
+</div>
+
+<p>
+  Заметь две вещи. Первое: один сигнал реально двигает оценку — Байес умножает вероятности, и даже умеренно диагностический сигнал даёт ощутимый сдвиг. Большинство людей сидят на стартовой интуиции дольше, чем должны. Второе: чем больше сигналов одного типа уже было, тем СЛАБЕЕ эффект следующего такого же — а противоположный сигнал в этот момент бьёт особенно сильно. Это правильно: ты обновляешь оценку, а не складываешь голоса.
+</p>
+
+<!-- ============================================================
+     SCENE 13 — Порядок имеет значение
+============================================================ -->
+<h2><span class="num">13</span>Порядок имеет значение</h2>
+<p>
+  Последняя контр-интуитивная штука. У двух траекторий одинаковая сумма доходностей за 10 лет — пять «хороших» (+15%) и пять «плохих» (−10%). В одной хорошие годы идут первыми, в другой — последними. По арифметике итог должен быть одинаковым.
+</p>
+<p>
+  Если ты ничего не вынимаешь — действительно одинаковый. Но если ты ВЫНИМАЕШЬ часть капитала каждый год (на жизнь, на пенсию, на операционные расходы бизнеса) — разница становится огромной. Это называется sequence-of-returns risk, риск последовательности доходностей. Двигай слайдер «снимаешь каждый год».
+</p>
+
+<div class="toy" id="scene13">
+  <div class="time-row">
+    <div class="time-label">Снимаешь каждый год</div>
+    <div class="time-input">
+      <input type="range" id="s13-w" min="0" max="150" value="50" step="5" />
+      <span class="time-val"><span id="s13-wv">50</span></span>
+    </div>
+  </div>
+
+  <div class="runs">
+    <div class="strategy" style="border-top:3px solid var(--tort)">
+      <h4>Хорошие годы — сначала</h4>
+      <div class="rule">+15, +15, +15, +15, +15, −10, −10, −10, −10, −10</div>
+      <canvas id="s13-canvas-a" width="320" height="110"></canvas>
+      <div class="cap" id="s13-a-end">—</div>
+    </div>
+    <div class="strategy" style="border-top:3px solid var(--hare)">
+      <h4>Плохие годы — сначала</h4>
+      <div class="rule">−10, −10, −10, −10, −10, +15, +15, +15, +15, +15</div>
+      <canvas id="s13-canvas-b" width="320" height="110"></canvas>
+      <div class="cap" id="s13-b-end">—</div>
+    </div>
+  </div>
+
+  <div class="reveal" id="s13-reveal" style="margin-top:14px"></div>
+</div>
+
+<p>
+  Это объясняет, почему «средняя доходность за 20 лет» — обманчивая метрика. Что важно — последовательность. Бизнес, запустившийся в плохой год, может никогда не оправиться, даже если в среднем годы потом отличные. Пенсионный портфель, попавший в обвал в первые годы изъятий, разоряет тебя, хотя индекс в долгой перспективе восстановится.
+</p>
+<p>
+  Практический вывод: чем больше ты вынимаешь из капитала, тем критичнее первые годы. В этой фазе стоит держать больше «штанги» и меньше волатильности — даже ценой меньшей средней доходности. Защита от плохого старта стоит дороже, чем максимизация хорошего конца.
+</p>
+
+<!-- ============================================================
+     SCENE 14 — Что дальше
+============================================================ -->
+<h2><span class="num">14</span>Что дальше</h2>
+<p>
+  Если из всего, что ты только что прожил, нужно запомнить одно — пусть это будет пять простых вещей:
+</p>
+
+<div class="takeaway"><b>Будущее не нужно угадывать.</b> Задача — расставить себя так, чтобы максимум вариантов будущего работал на тебя.</div>
+<div class="takeaway"><b>Ни одна ставка не должна тебя обнулять.</b> Один плохой год выбивает из игры; один хороший — не возвращает.</div>
+<div class="takeaway"><b>Маленькая позиция в «лотерее» — это не баловство.</b> Это единственное, что платит в тот год, когда не платит никто.</div>
+<div class="takeaway"><b>Честность с вероятностями важнее точности прогноза.</b> «70%, а оказалось 90%» — это про то, что ты плохо знаешь себя, а не про мир.</div>
+<div class="takeaway"><b>Премортем дешевле и быстрее, чем катастрофа.</b> Десять минут «как я мог провалиться?» спасают годы.</div>
+
+<p class="reading" style="margin-top:18px">
+  Если хочется глубже — короткая полка. <b>Талеб, «Антихрупкость»</b> — главная книга в этой теме. <b>Энни Дюк, «Thinking in Bets»</b> — про решение как ставку, отличный мостик от теории к жизни. <b>Говард Маркс, «The Most Important Thing»</b> — практический риск-менеджмент. <b>Канеман, «Thinking, Fast and Slow»</b> — почему интуиция врёт о вероятностях. <b>Тэтлок, «Superforecasting»</b> — как реально становиться лучшим прогнозистом.
+</p>
+
+<p style="margin-top:14px">
+  И главное — это не сетка, это привычка. Любое значимое решение проходит через те же четыре вопроса: <b>что я считаю «по плану»?</b> · <b>чем я страхуюсь, если не «по плану»?</b> · <b>что меня может обнулить?</b> · <b>где я ловлю асимметричный апсайд?</b>
+</p>
+
+<footer>
+  <p>Четырнадцать сцен пройдены. Сетку не нужно запоминать — она становится привычкой через практику.</p>
+  <p style="margin-top:18px">«Сетка» · v1.2 · черновик · open source</p>
+</footer>
+
+</main>
+
+<script>
+/* ========================================================
+   SCENE 1 — Заяц и черепаха
+======================================================== */
+(function(){
+  var R = { a:[3.6,0.15,0.2,0.0,0.3], b:[1.3,2.6,0.6,0.2,0.5], c:[0.5,0.55,1.6,1.6,0.8], d:[0.25,0.3,0.5,0.7,5.5] };
+  var W = [0.28, 0.24, 0.20, 0.16, 0.12];
+  var SC = [
+    { n:"Всё по плану", d:"всё реализовалось почти идеально" },
+    { n:"Активы не те", d:"направление верное, но конкретные ставки подвели" },
+    { n:"Ушло вбок", d:"сценарий ушёл в сторону — спасают страховки" },
+    { n:"Не тот макросценарий", d:"базовый тезис оказался неверным" },
+    { n:"Чёрный лебедь", d:"произошло то, чего никто не ожидал" }
+  ];
+  var hareAlloc = [10,0,0,0];   // всё на "идеальный"
+  var tortAlloc = [3,3,2,2];    // сетка
+  var KEYS = ["a","b","c","d"];
+
+  var state = { year: 0, hare: 1000, tort: 1000, hareDead:false, tortDead:false, busy:false };
+  var hareCap = document.getElementById("hare-cap");
+  var tortCap = document.getElementById("tort-cap");
+  var hareDelta = document.getElementById("hare-delta");
+  var tortDelta = document.getElementById("tort-delta");
+  var hareEl = document.getElementById("hare");
+  var tortEl = document.getElementById("tort");
+  var yearEl = document.getElementById("year");
+  var pipsEl = document.getElementById("pips");
+  var reveal = document.getElementById("reveal-1");
+  var verdict = document.getElementById("verdict-1");
+  var bStep = document.getElementById("b-step");
+  var bAuto = document.getElementById("b-auto");
+  var bReset = document.getElementById("b-reset");
+
+  function buildPips(){
+    pipsEl.innerHTML = "";
+    for (var i=0;i<10;i++){
+      var d = document.createElement("div");
+      d.className = "pip" + (i < state.year ? " on" : "");
+      pipsEl.appendChild(d);
+    }
+  }
+  function fmt(n){ return Math.round(n).toLocaleString("ru-RU"); }
+  function ret(alloc, s){ var t=0; for (var i=0;i<4;i++) t += alloc[i]/10 * R[KEYS[i]][s]; return t; }
+  function rollScenario(){ var r = Math.random(), acc=0; for (var i=0;i<5;i++){ acc+=W[i]; if (r<acc) return i; } return 4; }
+
+  function renderCaps(){
+    hareCap.textContent = state.hareDead ? "обнулён" : fmt(state.hare);
+    tortCap.textContent = state.tortDead ? "обнулён" : fmt(state.tort);
+    hareEl.classList.toggle("ruined", state.hareDead);
+    tortEl.classList.toggle("ruined", state.tortDead);
+    yearEl.textContent = state.year;
+    buildPips();
+  }
+  function deltaTxt(mult){
+    var pct = Math.round((mult-1)*100);
+    return (pct>=0?"+":"") + pct + "%";
+  }
+  function setDelta(el, mult){
+    if (mult == null){ el.textContent = " "; el.className = "delta"; return; }
+    el.textContent = deltaTxt(mult);
+    el.className = "delta " + (mult >= 1 ? "up" : "down");
+  }
+
+  function step(){
+    if (state.busy || state.year >= 10) return;
+    state.busy = true;
+    var s = rollScenario();
+    var rHare = ret(hareAlloc, s);
+    var rTort = ret(tortAlloc, s);
+    if (!state.hareDead){
+      state.hare *= rHare;
+      if (state.hare < 250) state.hareDead = true;
+    }
+    if (!state.tortDead){
+      state.tort *= rTort;
+      if (state.tort < 250) state.tortDead = true;
+    }
+    state.year++;
+    reveal.innerHTML = '<span class="sname">Год '+state.year+': «'+SC[s].n+'»</span> — '+SC[s].d+'.';
+    setDelta(hareDelta, state.hareDead && rHare<0.5 ? rHare : rHare);
+    setDelta(tortDelta, rTort);
+    renderCaps();
+    setTimeout(function(){
+      state.busy = false;
+      if (state.year >= 10) finish();
+    }, 240);
+  }
+  function finish(){
+    bStep.disabled = true;
+    bAuto.disabled = true;
+    var msg;
+    if (state.hareDead && !state.tortDead){
+      msg = "<b>Черепаха дошла, заяц — нет.</b> За 10 лет заяц нарвался на сценарий, который его обнулил, и больше не вернулся. Черепаха не выигрывала ярко ни в один год — но не проиграла ни в один так, чтобы выпасть.";
+    } else if (!state.hareDead && state.tortDead){
+      msg = "<b>Неожиданный поворот.</b> В этот раз заяц везунчик, черепаха где-то перебрала. Бывает — это и есть смысл слова «дисперсия». Сыграй ещё несколько раз, и тренд станет очевиден.";
+    } else if (state.hareDead && state.tortDead){
+      msg = "<b>Оба не дошли.</b> Жёсткая последовательность сценариев. Запусти заново — почти наверняка черепаха пройдёт в следующий раз.";
+    } else {
+      var diff = state.tort - state.hare;
+      if (diff > 0) msg = "<b>Оба выжили, черепаха впереди.</b> Капитал черепахи на "+fmt(diff)+" больше. Это типичный исход: сетка обгоняет, потому что не теряет.";
+      else if (diff < -300) msg = "<b>Оба выжили, заяц неплохо разогнался.</b> Так тоже бывает — концентрация выигрывает, если ей повезло не встретить плохой год. Сыграй ещё — посмотрим, что в среднем.";
+      else msg = "<b>Оба выжили примерно одинаково.</b> Скучный исход; сыграй ещё пару раз, увидишь, как часто заяц выпадает.";
+    }
+    verdict.innerHTML = msg + ' <span class="quiet">(жми «Сначала», чтобы прогнать ещё раз)</span>';
+    verdict.style.display = "block";
+  }
+  function reset(){
+    state = { year:0, hare:1000, tort:1000, hareDead:false, tortDead:false, busy:false };
+    setDelta(hareDelta, null); setDelta(tortDelta, null);
+    reveal.innerHTML = 'Жми «Прожить год» — посмотрим, какое будущее выпадет.';
+    verdict.style.display = "none";
+    bStep.disabled = false; bAuto.disabled = false;
+    renderCaps();
+  }
+  function auto(){
+    if (state.busy) return;
+    bStep.disabled = true; bAuto.disabled = true;
+    var iv = setInterval(function(){
+      if (state.year >= 10){ clearInterval(iv); bStep.disabled = false; bAuto.disabled = false; return; }
+      step();
+    }, 380);
+  }
+
+  bStep.addEventListener("click", step);
+  bAuto.addEventListener("click", auto);
+  bReset.addEventListener("click", reset);
+  renderCaps();
+})();
+
+/* ========================================================
+   SCENE 2 — Хвосты
+======================================================== */
+(function(){
+  var cvN = document.getElementById("cv-norm");
+  var cvF = document.getElementById("cv-fat");
+  var ctxN = cvN.getContext("2d"), ctxF = cvF.getContext("2d");
+  var wN = document.getElementById("w-norm"), wF = document.getElementById("w-fat");
+  var bThrow = document.getElementById("b-throw");
+  var bClear = document.getElementById("b-throw-clear");
+  var stateN = { dots: [], worst: 0 }, stateF = { dots: [], worst: 0 };
+
+  function setupCanvas(cv){
+    var dpr = window.devicePixelRatio || 1;
+    var r = cv.getBoundingClientRect();
+    cv.width = r.width * dpr; cv.height = r.height * dpr;
+    cv.getContext("2d").scale(dpr, dpr);
+    return { w: r.width, h: r.height };
+  }
+  var dimsN, dimsF;
+  function init(){ dimsN = setupCanvas(cvN); dimsF = setupCanvas(cvF); draw(); }
+  window.addEventListener("resize", function(){ init(); });
+
+  // sample normal(0, 1) via central limit
+  function gauss(){ var s=0; for (var i=0;i<6;i++) s+=Math.random(); return s-3; }
+  // fat-tailed: 90% normal-ish, 10% giant negative spike
+  function fat(){
+    if (Math.random() < 0.10) return -(2 + Math.random()*7);  // -2 .. -9
+    return gauss();
+  }
+
+  function drawAxis(ctx, dims){
+    ctx.clearRect(0,0,dims.w,dims.h);
+    ctx.fillStyle = "#FFFEFA"; ctx.fillRect(0,0,dims.w,dims.h);
+    // baseline
+    ctx.strokeStyle = "#D8CFB9"; ctx.lineWidth = 1;
+    var y = dims.h/2 + 0.5;
+    ctx.beginPath(); ctx.moveTo(8, y); ctx.lineTo(dims.w-8, y); ctx.stroke();
+    // zero tick
+    ctx.fillStyle = "#A89B85"; ctx.font = "10px -apple-system, sans-serif";
+    ctx.fillText("0", dims.w/2 - 3, dims.h - 6);
+    // side ticks
+    ctx.fillText("−", 8, dims.h - 6);
+    ctx.fillText("+", dims.w - 14, dims.h - 6);
+  }
+  function drawDot(ctx, dims, val, age){
+    // x scale: −10 .. +10 maps to [10, w-10]
+    var x = (val + 10) / 20 * (dims.w - 20) + 10;
+    var jitter = (Math.random()-0.5) * (dims.h*0.55);
+    var y = dims.h/2 + jitter;
+    var color = val < 0 ? "#D86E54" : (val > 1 ? "#6B9E5F" : "#A89B85");
+    ctx.fillStyle = color;
+    var r = val < -2 ? 4 : 2.5;
+    ctx.globalAlpha = Math.max(0.35, 1 - age*0.04);
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function draw(){
+    drawAxis(ctxN, dimsN); drawAxis(ctxF, dimsF);
+    stateN.dots.forEach(function(d,i){ drawDot(ctxN, dimsN, d.v, stateN.dots.length-1-i); });
+    stateF.dots.forEach(function(d,i){ drawDot(ctxF, dimsF, d.v, stateF.dots.length-1-i); });
+  }
+
+  function fmtVal(v){ return (v>=0?"+":"")+v.toFixed(1); }
+  function updateWorst(){
+    wN.textContent = stateN.dots.length ? fmtVal(stateN.worst) : "—";
+    wF.textContent = stateF.dots.length ? fmtVal(stateF.worst) : "—";
+  }
+
+  function throw50(){
+    bThrow.disabled = true;
+    var n = 0;
+    var iv = setInterval(function(){
+      var vN = gauss(), vF = fat();
+      stateN.dots.push({v:vN});
+      stateF.dots.push({v:vF});
+      if (vN < stateN.worst || stateN.dots.length===1) stateN.worst = vN;
+      if (vF < stateF.worst || stateF.dots.length===1) stateF.worst = vF;
+      draw(); updateWorst();
+      n++;
+      if (n >= 50){ clearInterval(iv); bThrow.disabled = false; }
+    }, 35);
+  }
+  function clearAll(){
+    stateN = {dots:[],worst:0}; stateF = {dots:[],worst:0};
+    draw(); updateWorst();
+  }
+
+  bThrow.addEventListener("click", throw50);
+  bClear.addEventListener("click", clearAll);
+  init();
+})();
+
+/* ========================================================
+   SCENE 3 — Одна ставка против многих
+======================================================== */
+(function(){
+  var capBold = document.getElementById("bold-cap");
+  var capSteady = document.getElementById("steady-cap");
+  var endBold = document.getElementById("bold-end");
+  var endSteady = document.getElementById("steady-end");
+  var svgBold = document.getElementById("bold-svg");
+  var svgSteady = document.getElementById("steady-svg");
+  var verdict = document.getElementById("verdict-3");
+  var bOne = document.getElementById("b-one");
+  var bTwenty = document.getElementById("b-twenty");
+  var bReset = document.getElementById("b-reset3");
+
+  var st = { bold:1000, steady:1000, boldDead:false, hist:{bold:[1000], steady:[1000]}, busy:false };
+
+  function fmt(n){ return Math.round(n).toLocaleString("ru-RU"); }
+  function renderCaps(){
+    capBold.textContent = st.boldDead ? "обнулён" : fmt(st.bold);
+    capSteady.textContent = fmt(st.steady);
+  }
+  function drawTraj(svg, arr){
+    var max = Math.max.apply(null, arr.concat([1000]));
+    var min = Math.min.apply(null, arr.concat([0]));
+    var range = Math.max(max - min, 1);
+    var pts = arr.map(function(v, i){
+      var x = arr.length > 1 ? (i / (arr.length-1)) * 200 : 0;
+      var y = 38 - ((v - min) / range) * 36 - 1;
+      return x.toFixed(1)+","+y.toFixed(1);
+    }).join(" ");
+    svg.innerHTML = '<polyline points="'+pts+'" fill="none" stroke="#A89B85" stroke-width="1.4" />';
+  }
+
+  function boldOnce(){
+    if (st.boldDead) return;
+    if (Math.random() < 0.6){ st.bold *= 2; }
+    else { st.bold = 0; st.boldDead = true; }
+    st.hist.bold.push(st.bold);
+  }
+  function steadyOnce(){
+    if (Math.random() < 0.75) st.steady *= 1.10;
+    else st.steady *= 0.95;
+    st.hist.steady.push(st.steady);
+  }
+
+  function playOne(){
+    if (st.busy) return;
+    st.busy = true;
+    boldOnce(); steadyOnce();
+    renderCaps();
+    drawTraj(svgBold, st.hist.bold); drawTraj(svgSteady, st.hist.steady);
+    setTimeout(function(){ st.busy = false; }, 200);
+  }
+  function playTwenty(){
+    if (st.busy) return;
+    st.busy = true;
+    bOne.disabled = true; bTwenty.disabled = true;
+    var n = 0;
+    var iv = setInterval(function(){
+      boldOnce(); steadyOnce();
+      renderCaps();
+      drawTraj(svgBold, st.hist.bold); drawTraj(svgSteady, st.hist.steady);
+      n++;
+      if (n >= 20){
+        clearInterval(iv);
+        st.busy = false;
+        bOne.disabled = false; bTwenty.disabled = false;
+        showVerdict();
+      }
+    }, 140);
+  }
+  function showVerdict(){
+    var msg;
+    if (st.boldDead){
+      msg = "Смелая ставка обнулилась на одном из раундов. Скучная пришла к "+fmt(st.steady)+" — это "+Math.round((st.steady/1000-1)*100)+"% за двадцать раундов.";
+    } else {
+      msg = "Редкий случай: смелая прошла все 20 раундов и теперь стоит "+fmt(st.bold)+". Скучная пришла к "+fmt(st.steady)+". Шанс такого сценария — около 0,4%. Запусти ещё раз — увидишь, что обычно происходит.";
+    }
+    verdict.innerHTML = msg;
+    verdict.style.display = "block";
+  }
+  function reset(){
+    st = { bold:1000, steady:1000, boldDead:false, hist:{bold:[1000], steady:[1000]}, busy:false };
+    endBold.textContent = " "; endSteady.textContent = " ";
+    verdict.style.display = "none";
+    svgBold.innerHTML = ""; svgSteady.innerHTML = "";
+    bOne.disabled = false; bTwenty.disabled = false;
+    renderCaps();
+  }
+
+  bOne.addEventListener("click", playOne);
+  bTwenty.addEventListener("click", playTwenty);
+  bReset.addEventListener("click", reset);
+  renderCaps();
+})();
+
+/* ========================================================
+   SCENE 4 — Машина сценариев, твоя очередь
+======================================================== */
+(function(){
+  var R = { a:[3.6,0.15,0.2,0.0,0.3], b:[1.3,2.6,0.6,0.2,0.5], c:[0.5,0.55,1.6,1.6,0.8], d:[0.25,0.3,0.5,0.7,5.5] };
+  var W = [0.28, 0.24, 0.20, 0.16, 0.12];
+  var SC = ["Всё по плану","Сценарий верен — активы не те","Ушло вбок","Не тот макросценарий","Чёрный лебедь"];
+  var KEYS = ["a","b","c","d"];
+  var state = { year:0, chips:{a:0,b:0,c:0,d:0}, cap:1000, dead:false };
+  function $(id){return document.getElementById(id)}
+  function fmt(n){return Math.round(n).toLocaleString("ru-RU")}
+  function used(){return state.chips.a+state.chips.b+state.chips.c+state.chips.d}
+  function left(){return 10-used()}
+  function ret(s){var t=0; for (var i=0;i<4;i++) t += state.chips[KEYS[i]]/10 * R[KEYS[i]][s]; return t}
+  function roll(){var r=Math.random(),a=0; for (var i=0;i<5;i++){a+=W[i]; if(r<a) return i;} return 4}
+
+  function render(){
+    $("s4-year").textContent = Math.min(state.year+1, 6);
+    $("s4-cap").textContent = state.dead ? "обнулён" : fmt(state.cap);
+    for (var i=0;i<4;i++) $("s4-"+KEYS[i]).textContent = state.chips[KEYS[i]];
+    $("s4-step").disabled = used()!==10 || state.dead || state.year>=6;
+  }
+
+  document.querySelectorAll("#scene4 button[data-s4]").forEach(function(b){
+    b.addEventListener("click", function(){
+      if (state.dead || state.year>=6) return;
+      var k = b.getAttribute("data-s4"), d = +b.getAttribute("data-d");
+      var nv = state.chips[k] + d;
+      if (nv<0) return; if (d>0 && left()<=0) return;
+      state.chips[k] = nv; render();
+      if (used()===10) $("s4-reveal").innerHTML = "Готово, 10 фишек расставлены. Жми «Прожить год».";
+      else $("s4-reveal").innerHTML = 'осталось фишек: <b>'+left()+'</b>. Распредели их и жми «Прожить год».';
+    });
+  });
+
+  $("s4-step").addEventListener("click", function(){
+    var s = roll(), r = ret(s);
+    state.cap *= r;
+    if (state.cap < 250) state.dead = true;
+    state.year++;
+    var pct = Math.round((r-1)*100);
+    $("s4-reveal").innerHTML = '<b>Год '+state.year+': «'+SC[s]+'»</b> — '+(pct>=0?"+":"")+pct+'% → капитал '+(state.dead?"обнулён":fmt(state.cap))+'.';
+    render();
+    if (state.dead){
+      $("s4-verdict").innerHTML = "<b>Тебя обнулило.</b> Где-то ставка была слишком концентрированной. Попробуй другую раскладку — например, по чуть-чуть во все четыре.";
+      $("s4-verdict").style.display = "block";
+    } else if (state.year >= 6){
+      var pctTot = Math.round((state.cap/1000 - 1)*100);
+      var msg = "<b>Шесть лет прожиты.</b> Капитал "+fmt(state.cap)+" ("+(pctTot>=0?"+":"")+pctTot+"%). ";
+      if (pctTot >= 50) msg += "Сетка отработала отлично — ровный рост без катастроф.";
+      else if (pctTot >= 0) msg += "Ты в плюсе и в игре. Это уже победа — большинство концентрированных портфелей за это время обнулилось.";
+      else msg += "Ты в минусе, но не обнулился. У тебя ещё много раундов впереди — самое страшное не случилось.";
+      $("s4-verdict").innerHTML = msg;
+      $("s4-verdict").style.display = "block";
+    }
+  });
+
+  $("s4-reset").addEventListener("click", function(){
+    state = { year:0, chips:{a:0,b:0,c:0,d:0}, cap:1000, dead:false };
+    $("s4-verdict").style.display = "none";
+    $("s4-reveal").innerHTML = 'осталось фишек: <b>10</b>. Распредели их и жми «Прожить год».';
+    render();
+  });
+
+  render();
+})();
+
+/* ========================================================
+   SCENE 5 — Чёрный лебедь
+======================================================== */
+(function(){
+  var R = { a:[3.6,0.15,0.2,0.0,0.3], b:[1.3,2.6,0.6,0.2,0.5], c:[0.5,0.55,1.6,1.6,0.8], d:[0.25,0.3,0.5,0.7,5.5] };
+  var KEYS = ["a","b","c","d"];
+  var noD = [4,3,3,0], withD = [3,3,2,2];
+  function fmt(n){return Math.round(n).toLocaleString("ru-RU")}
+  function ret(al, s){var t=0; for (var i=0;i<4;i++) t += al[i]/10 * R[KEYS[i]][s]; return t}
+  var st = { noDCap:1000, withDCap:1000, done:false };
+  function $(id){return document.getElementById(id)}
+  function render(){
+    $("s5-noD-cap").textContent = fmt(st.noDCap);
+    $("s5-withD-cap").textContent = fmt(st.withDCap);
+    if (st.done){
+      var p1 = Math.round((st.noDCap/1000-1)*100), p2 = Math.round((st.withDCap/1000-1)*100);
+      $("s5-noD-end").textContent = (p1>=0?"+":"")+p1+"%";
+      $("s5-noD-end").style.color = p1>=0 ? "var(--tort)" : "var(--hare)";
+      $("s5-withD-end").textContent = (p2>=0?"+":"")+p2+"%";
+      $("s5-withD-end").style.color = p2>=0 ? "var(--tort)" : "var(--hare)";
+    } else {
+      $("s5-noD-end").textContent = " "; $("s5-noD-end").style.color = "";
+      $("s5-withD-end").textContent = " "; $("s5-withD-end").style.color = "";
+    }
+  }
+  $("s5-go").addEventListener("click", function(){
+    if (st.done) return;
+    var s = 4; // Чёрный лебедь
+    st.noDCap *= ret(noD, s);
+    st.withDCap *= ret(withD, s);
+    st.done = true;
+    render();
+    $("s5-reveal").innerHTML = "<b>Случился «чёрный лебедь».</b> Та раскладка, у которой не было даже маленькой ставки на wildcards, потеряла половину капитала. Вторая — выросла на 50%. Разница — всего 2 фишки из 10. Wildcards платят редко, но платят за всё сразу.";
+  });
+  $("s5-reset").addEventListener("click", function(){
+    st = { noDCap:1000, withDCap:1000, done:false };
+    $("s5-reveal").innerHTML = "Жми кнопку — и увидишь, что бывает, когда случается «чёрный лебедь».";
+    render();
+  });
+  render();
+})();
+
+/* ========================================================
+   SCENE 6 — Калибровка
+======================================================== */
+(function(){
+  var QUIZ = [
+    { q: "От Москвы до Владивостока больше 9 000 километров", a: true },
+    { q: "Венера ближе к Солнцу, чем Меркурий", a: false },
+    { q: "Эльбрус выше Монблана", a: true },
+    { q: "Население Москвы (с агломерацией) больше населения Лондона", a: true },
+    { q: "По площади поверхности Россия больше Плутона", a: false }
+  ];
+  var FACTS = [
+    "Москва—Владивосток ≈ 9 100 км по прямой.",
+    "Меркурий ближе к Солнцу (≈58 млн км), Венера — следующая (≈108 млн км).",
+    "Эльбрус 5 642 м, Монблан 4 810 м.",
+    "Москва ≈ 13 млн человек (с агломерацией), Лондон ≈ 9 млн.",
+    "Площадь Плутона ≈ 17,7 млн км², России ≈ 17,1 млн км² — Плутон чуть больше."
+  ];
+  var answers = [];
+  function $(id){return document.getElementById(id)}
+
+  function buildQuiz(){
+    var html = "";
+    QUIZ.forEach(function(q, i){
+      html += '<div class="q" data-i="'+i+'">'+
+        '<div class="qtxt">'+(i+1)+'. '+q.q+'</div>'+
+        '<div class="q-choice">'+
+          '<button data-dir="t" data-c="60">верно · 60%</button>'+
+          '<button data-dir="t" data-c="80">верно · 80%</button>'+
+          '<button data-dir="t" data-c="95">верно · 95%</button>'+
+          '<button data-dir="f" data-c="60">неверно · 60%</button>'+
+          '<button data-dir="f" data-c="80">неверно · 80%</button>'+
+          '<button data-dir="f" data-c="95">неверно · 95%</button>'+
+        '</div>'+
+        '<div class="result"></div></div>';
+    });
+    $("s6-quiz").innerHTML = html;
+    $("s6-quiz").querySelectorAll(".q .q-choice button").forEach(function(b){
+      b.addEventListener("click", function(){
+        var qDiv = b.closest(".q");
+        if (qDiv.classList.contains("done")) return;
+        var idx = +qDiv.getAttribute("data-i");
+        var dir = b.getAttribute("data-dir") === "t";
+        var conf = +b.getAttribute("data-c");
+        var correct = (dir === QUIZ[idx].a);
+        answers[idx] = { dir: dir, conf: conf, correct: correct };
+        qDiv.classList.add("done");
+        var resEl = qDiv.querySelector(".result");
+        resEl.textContent = (correct ? "✓ верно. " : "✗ а на самом деле — нет. ") + FACTS[idx];
+        resEl.className = "result " + (correct ? "ok" : "bad");
+        checkComplete();
+      });
+    });
+  }
+  function checkComplete(){
+    var filled = 0;
+    for (var i=0;i<QUIZ.length;i++) if (answers[i]) filled++;
+    if (filled !== QUIZ.length) return;
+    var n = QUIZ.length;
+    var avgConf = answers.reduce(function(a,x){return a+x.conf},0) / n;
+    var acc = answers.filter(function(x){return x.correct}).length / n * 100;
+    var gap = avgConf - acc;
+    var verdict;
+    if (gap > 20) verdict = "<b>Перекос в самоуверенность.</b> Ты в среднем сказал «"+Math.round(avgConf)+"% уверен», а попал только в "+Math.round(acc)+"% случаев. Это очень типичный паттерн — большинство людей систематически переоценивают, насколько хорошо знают мир.";
+    else if (gap > 5) verdict = "<b>Лёгкая самоуверенность.</b> Средняя уверенность "+Math.round(avgConf)+"%, точность "+Math.round(acc)+"%. В пределах нормы, но есть куда расти.";
+    else if (gap < -10) verdict = "<b>Ты, наоборот, недооцениваешь себя.</b> Точность "+Math.round(acc)+"%, а уверенность только "+Math.round(avgConf)+"%. Можешь смелее ставить — твои интуиции лучше, чем ты думаешь.";
+    else verdict = "<b>Неплохо откалиброван.</b> Уверенность "+Math.round(avgConf)+"%, точность "+Math.round(acc)+"%. Это редкое качество.";
+    verdict += ' <span class="quiet">(пять вопросов — крошечная выборка; для серьёзной калибровки тренируются на сотнях.)</span>';
+    $("s6-result").innerHTML = verdict;
+    $("s6-result").style.display = "block";
+    $("s6-controls").style.display = "flex";
+  }
+  $("s6-reset").addEventListener("click", function(){
+    answers = [];
+    $("s6-result").style.display = "none";
+    $("s6-controls").style.display = "none";
+    buildQuiz();
+  });
+  buildQuiz();
+})();
+
+/* ========================================================
+   SCENE 7 — Премортем
+======================================================== */
+(function(){
+  var RISKS = {
+    job: [
+      "Новая роль окажется не такой, как обещали на интервью",
+      "Команда не сработается, корпоративная политика тяжелее, чем казалось",
+      "Индустрия или компания пойдёт под откос вскоре после перехода",
+      "Старые связи остынут — обратно вернуться не к кому",
+      "Финансовая подушка кончится раньше, чем выйдешь на прежний доход",
+      "Здоровье или семья не выдержат интенсивности первого года",
+      "Найдут «звезду» со стороны и постепенно отодвинут",
+      "Релокация или гибрид окажутся тяжелее психологически"
+    ],
+    biz: [
+      "Идея окажется хорошей, но продажи не пойдут",
+      "Конкурент перебьёт рынок до того, как ты раскачаешься",
+      "Кофаундер уйдёт или вы поссоритесь",
+      "Кэш кончится раньше product-market fit",
+      "Регуляторика или законы изменятся",
+      "Не хватит технической или маркетинговой компетенции",
+      "Личное выгорание от 70-часовых недель",
+      "Один большой клиент уйдёт, и всё рухнет"
+    ],
+    buy: [
+      "Доход внезапно просядет — нечем платить",
+      "Локация окажется хуже, чем казалось при покупке",
+      "Скрытые расходы (ремонт, налоги, обслуживание) превысят расчёт",
+      "Рынок упадёт — продать без потери не получится",
+      "Личные планы изменятся (другой город, переезд, семья)",
+      "Покупка эмоциональная — через полгода надоест",
+      "Кредит или ипотека станет давить психологически",
+      "Альтернативное использование тех же денег было сильно выгоднее"
+    ],
+    rel: [
+      "Окажется, что по-разному видите главные вещи (дети, деньги, география)",
+      "Личные привычки одной стороны несовместимы с другой при близкой жизни",
+      "Семья или окружение начнёт давить",
+      "Карьеры столкнутся — кому-то надо будет жертвовать",
+      "Финансовая разница станет источником постоянного трения",
+      "Один из партнёров будет ждать, что другой изменится",
+      "Кризис со здоровьем у одного из двоих",
+      "Перестанет быть интересно вместе — без видимой причины"
+    ]
+  };
+  function $(id){return document.getElementById(id)}
+  document.querySelectorAll("#scene7 .decision").forEach(function(b){
+    b.addEventListener("click", function(){
+      document.querySelectorAll("#scene7 .decision").forEach(function(d){d.classList.remove("active")});
+      b.classList.add("active");
+      var key = b.getAttribute("data-d");
+      var html = "";
+      RISKS[key].forEach(function(r, i){
+        html += '<div class="risk"><input type="checkbox" id="r-'+i+'" /><label for="r-'+i+'">'+r+'</label></div>';
+      });
+      $("s7-risks").innerHTML = html;
+      $("s7-list").style.display = "block";
+      $("s7-verdict").style.display = "none";
+    });
+  });
+  $("s7-done").addEventListener("click", function(){
+    var checked = [];
+    document.querySelectorAll("#s7-risks input:checked").forEach(function(c){
+      checked.push(c.nextElementSibling.textContent);
+    });
+    var v = $("s7-verdict");
+    if (checked.length === 0){
+      v.innerHTML = "Если ни один из рисков не отозвался — либо ты идеально подготовлен, либо мозг прячет от тебя то, что больно смотреть. Перечитай список ещё раз спокойно.";
+    } else {
+      var list = checked.map(function(t){return '<div style="margin:4px 0;font-size:14px">• '+t+'</div>'}).join("");
+      v.innerHTML = "<b>Твой watch-list:</b>"+list+'<div style="margin-top:10px;font-size:14.5px">По каждому пункту задай один вопрос: <b>что я могу сделать СЕЙЧАС, чтобы этот риск был мягче, даже если не исчезнет?</b> Часто половина рисков снимается одним подготовительным шагом, который раньше казался необязательным.</div>';
+    }
+    v.style.display = "block";
+  });
+})();
+
+/* ========================================================
+   SCENE 8 — Барбелл по Талебу
+======================================================== */
+(function(){
+  var mid  = [0,    0.30, 0.40, 0.30, 0   ];
+  var even = [0.20, 0.20, 0.20, 0.20, 0.20];
+  var bar  = [0.50, 0,    0,    0,    0.50];
+  var NORMAL = [1.02, 1.05, 1.09, 1.13, 0.92];
+  var CRISIS = [1.02, 0.97, 0.80, 0.60, 2.50];
+
+  var state = { capMid:1000, capEven:1000, capBar:1000 };
+  function $(id){return document.getElementById(id)}
+  function fmt(n){return Math.round(n).toLocaleString("ru-RU")}
+
+  function drawShape(elId, alloc){
+    var el = $(elId);
+    el.innerHTML = alloc.map(function(a){
+      var h = Math.round(a/0.50 * 100);
+      return '<div class="bar" style="height:'+Math.max(h, 2)+'%"></div>';
+    }).join('');
+  }
+  function calc(alloc, R){
+    var t = 0; for (var i = 0; i < 5; i++) t += alloc[i] * R[i]; return t;
+  }
+  function render(){
+    $("s8-mid-cap").textContent = fmt(state.capMid);
+    $("s8-even-cap").textContent = fmt(state.capEven);
+    $("s8-bar-cap").textContent = fmt(state.capBar);
+  }
+  function play(R, label){
+    var rMid = calc(mid, R), rEven = calc(even, R), rBar = calc(bar, R);
+    state.capMid *= rMid; state.capEven *= rEven; state.capBar *= rBar;
+    render();
+    function pct(r){var p = Math.round((r-1)*100); return (p>=0?"+":"")+p+"%";}
+    function col(r){return r>=1 ? "var(--tort)" : "var(--hare)";}
+    $("s8-mid-end").innerHTML  = '<span style="color:'+col(rMid)+'">'+pct(rMid)+'</span>';
+    $("s8-even-end").innerHTML = '<span style="color:'+col(rEven)+'">'+pct(rEven)+'</span>';
+    $("s8-bar-end").innerHTML  = '<span style="color:'+col(rBar)+'">'+pct(rBar)+'</span>';
+    var msg;
+    if (label === 'normal') msg = "<b>Спокойный год.</b> «Середина» обогнала всех — это типичная ситуация. «Штанга» в небольшом минусе: цена за то, что половина капитала простаивает в безопасном, а другая половина в скучных wildcards.";
+    else msg = "<b>Случился кризис.</b> «Середина» потеряла около пятой части. «Штанга» наоборот выросла — её безопасная нога устояла, а рискованная выстрелила на хаосе. Та самая цена, которую она платила в спокойные годы, окупилась сразу.";
+    $("s8-reveal").innerHTML = msg;
+  }
+  $("s8-normal").addEventListener("click", function(){ play(NORMAL, 'normal'); });
+  $("s8-crisis").addEventListener("click", function(){ play(CRISIS, 'crisis'); });
+  $("s8-reset").addEventListener("click", function(){
+    state = { capMid:1000, capEven:1000, capBar:1000 };
+    render();
+    $("s8-mid-end").innerHTML = "";
+    $("s8-even-end").innerHTML = "";
+    $("s8-bar-end").innerHTML = "";
+    $("s8-reveal").innerHTML = "Слева направо в каждом портфеле: ультра-надёжное → надёжное → среднее → рискованное → wildcards. Жми кнопку — увидишь, что бывает в обычный год и в кризис.";
+  });
+  drawShape("s8-shape-mid",  mid);
+  drawShape("s8-shape-even", even);
+  drawShape("s8-shape-bar",  bar);
+  render();
+})();
+
+/* ========================================================
+   SCENE 9 — Критерий Келли
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  function fmt(n){
+    if (n < 0.01) return "≈ 0";
+    if (n < 1) return n.toFixed(2);
+    return Math.round(n).toLocaleString("ru-RU");
+  }
+
+  var uniSeq;
+  function genSeq(seedVal){
+    var seed = seedVal;
+    function r(){ seed = (seed * 9301 + 49297) % 233280; return seed/233280; }
+    uniSeq = [];
+    for (var i = 0; i < 100; i++) uniSeq.push(r());
+  }
+  genSeq(73);
+
+  function simulate(f, p){
+    var cap = 1000, path = [cap];
+    for (var i = 0; i < uniSeq.length; i++){
+      if (uniSeq[i] < p) cap *= (1 + f);
+      else cap *= (1 - f);
+      if (cap < 0.0001) cap = 0;
+      path.push(cap);
+    }
+    return path;
+  }
+  function growth(f, p){
+    if (f >= 0.9999) return -100;
+    if (f <= 0) return 0;
+    return p * Math.log(1 + f) + (1-p) * Math.log(1 - f);
+  }
+
+  var canvas = $("s9-canvas"), ctx, dims;
+  function setupCanvas(){
+    var dpr = window.devicePixelRatio || 1;
+    var r = canvas.getBoundingClientRect();
+    canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+    ctx = canvas.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr);
+    dims = { w: r.width, h: r.height };
+  }
+  function drawPath(path){
+    var w = dims.w, h = dims.h;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = "#FFFEFA"; ctx.fillRect(0,0,w,h);
+    var maxV = Math.max.apply(null, path.concat([1100]));
+    ctx.strokeStyle = "#D8CFB9"; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    var y0 = h - (1000 / maxV) * h * 0.86 - 12;
+    ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(w, y0); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = "#D86E54"; ctx.lineWidth = 1.8; ctx.beginPath();
+    for (var i = 0; i < path.length; i++){
+      var x = (i / (path.length - 1)) * w;
+      var v = Math.max(path[i], 0);
+      var y = h - (v / maxV) * h * 0.86 - 12;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = "#A89B85"; ctx.font = "11px -apple-system, sans-serif";
+    ctx.fillText("стартовый капитал 1000", 6, y0 - 4);
+  }
+  function update(){
+    var p = +$("s9-p-slider").value / 100;
+    var f = +$("s9-slider").value / 100;
+    $("s9-p").textContent = $("s9-p-slider").value;
+    $("s9-frac").textContent = $("s9-slider").value;
+
+    var optimal = Math.max(0, 2 * p - 1);
+    var optPct = Math.round(optimal * 100);
+    $("s9-opt").textContent = optPct + "%";
+
+    var path = simulate(f, p);
+    $("s9-end").textContent = fmt(path[path.length - 1]);
+
+    var g = growth(f, p);
+    var gPct = (Math.round(g * 1000) / 10);
+    $("s9-growth").textContent = isFinite(g) && g > -50 ? (gPct >= 0 ? "+" : "") + gPct + "%" : "—";
+
+    drawPath(path);
+
+    var ratio = optimal > 0 ? f / optimal : 0;
+    var msg;
+    if (optimal === 0) msg = "При шансе 50% у тебя вообще нет edge — ставить любой процент означает только пилить капитал на волатильности. Подними верхний слайдер.";
+    else if (f === 0) msg = "Не ставишь — не растёшь. Оптимум сейчас — " + optPct + "%.";
+    else if (ratio < 0.4) msg = "Слишком осторожно по сравнению с оптимумом " + optPct + "%. Растёшь медленнее, чем мог бы.";
+    else if (ratio < 0.75) msg = "Половинный Келли — практический выбор: чуть меньше роста, зато большой запас на ошибку в оценке вероятностей.";
+    else if (ratio < 1.15) msg = "Близко к полному Келли (" + optPct + "%). Точка максимального долгосрочного роста.";
+    else if (ratio < 1.7) msg = "За оптимумом. Каждая лишняя доля начинает съедать долгосрочный рост, хотя матожидание каждой ставки положительное.";
+    else if (ratio < 2.5) msg = "Сильно за оптимумом. Долгосрочно теряешь, несмотря на положительный EV каждой одиночной ставки.";
+    else if (f < 1.0) msg = "Жёсткая просадка после одного-двух проигрышей; восстановиться почти невозможно.";
+    else msg = "На 100% любой первый проигрыш обнуляет тебя.";
+    $("s9-reveal").textContent = msg;
+  }
+  $("s9-slider").addEventListener("input", update);
+  $("s9-p-slider").addEventListener("input", update);
+  $("s9-shuffle").addEventListener("click", function(){
+    genSeq(Math.floor(Math.random()*100000));
+    update();
+  });
+  setTimeout(function(){
+    setupCanvas(); update();
+    window.addEventListener("resize", function(){ setupCanvas(); update(); });
+  }, 0);
+})();
+
+/* ========================================================
+   SCENE 10 — Время и разорение
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  var canvas = $("s10-canvas"), ctx, dims;
+  function setupCanvas(){
+    var dpr = window.devicePixelRatio || 1;
+    var r = canvas.getBoundingClientRect();
+    canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+    ctx = canvas.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr);
+    dims = { w: r.width, h: r.height };
+  }
+  function update(){
+    var p = +$("s10-p").value / 100;
+    var n = +$("s10-n").value;
+    $("s10-pv").textContent = $("s10-p").value;
+    $("s10-nv").textContent = $("s10-n").value;
+    var pRuin = 1 - Math.pow(1 - p, n);
+    $("s10-result").textContent = Math.round(pRuin * 100) + "%";
+
+    var w = dims.w, h = dims.h;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#FFFEFA"; ctx.fillRect(0, 0, w, h);
+    var slot = w / 30;
+    for (var i = 1; i <= 30; i++){
+      var pSur = Math.pow(1 - p, i);
+      var x = (i - 1) * slot;
+      ctx.fillStyle = "#9DC58E";
+      ctx.fillRect(x + 1, h * (1 - pSur), slot - 2, h * pSur);
+      ctx.fillStyle = "#E5A89B";
+      ctx.fillRect(x + 1, 0, slot - 2, h * (1 - pSur));
+      if (i === n){
+        ctx.strokeStyle = "#2A2622";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 0.5, 0.5, slot - 1, h - 1);
+      }
+    }
+  }
+  $("s10-p").addEventListener("input", update);
+  $("s10-n").addEventListener("input", update);
+  setTimeout(function(){
+    setupCanvas(); update();
+    window.addEventListener("resize", function(){ setupCanvas(); update(); });
+  }, 0);
+})();
+
+/* ========================================================
+   SCENE 11 — Конвексность
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  function lin(x){ return 0.5 * x; }
+  function con(x){ return 3 - 0.06 * x * x; }
+  function cvx(x){ return -3 + 0.06 * x * x; }
+
+  var canvas = $("s11-canvas"), ctx, dims;
+  function setupCanvas(){
+    var dpr = window.devicePixelRatio || 1;
+    var r = canvas.getBoundingClientRect();
+    canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+    ctx = canvas.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr);
+    dims = { w: r.width, h: r.height };
+  }
+
+  var xMin = -15, xMax = 15, yMin = -11, yMax = 11;
+  function project(x, y){
+    var px = (x - xMin) / (xMax - xMin) * (dims.w - 70) + 50;
+    var py = dims.h - 30 - (y - yMin) / (yMax - yMin) * (dims.h - 50);
+    return [px, py];
+  }
+  function drawCurve(fn, color){
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (var x = xMin; x <= xMax; x += 0.5){
+      var p = project(x, fn(x));
+      if (x === xMin) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.stroke();
+  }
+  function drawAxes(){
+    var w = dims.w, h = dims.h;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#FFFEFA"; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "#D8CFB9"; ctx.lineWidth = 1;
+    var zero = project(0, 0);
+    var topY = project(0, yMax)[1], botY = project(0, yMin)[1];
+    var leftX = project(xMin, 0)[0], rightX = project(xMax, 0)[0];
+    ctx.beginPath(); ctx.moveTo(zero[0], topY); ctx.lineTo(zero[0], botY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(leftX, zero[1]); ctx.lineTo(rightX, zero[1]); ctx.stroke();
+    ctx.fillStyle = "#A89B85"; ctx.font = "11px -apple-system, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("результат, %", zero[0] + 6, topY + 12);
+    ctx.textAlign = "right";
+    ctx.fillText("движение мира, %", rightX - 4, zero[1] - 6);
+    ctx.textAlign = "center";
+    [-10, -5, 5, 10].forEach(function(t){
+      var p = project(t, 0);
+      ctx.fillText((t>0?"+":"") + t, p[0], zero[1] + 14);
+    });
+    ctx.textAlign = "right";
+    [-10, -5, 5, 10].forEach(function(t){
+      var p = project(0, t);
+      ctx.fillText((t>0?"+":"") + t, zero[0] - 6, p[1] + 4);
+    });
+  }
+  function drawDot(x, fn, color){
+    var p = project(x, fn(x));
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "white"; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, Math.PI*2); ctx.stroke();
+  }
+  function fmtPct(v){ var r = Math.round(v * 10) / 10; return (r >= 0 ? "+" : "") + r.toFixed(1) + "%"; }
+  function col(v){ return v >= 0 ? "var(--tort)" : "var(--hare)"; }
+
+  function update(){
+    var x = +$("s11-slider").value;
+    $("s11-xv").textContent = (x >= 0 ? "+" : "") + x;
+    drawAxes();
+    drawCurve(lin, "#6889B0");
+    drawCurve(con, "#D86E54");
+    drawCurve(cvx, "#C9A55C");
+    drawDot(x, lin, "#6889B0");
+    drawDot(x, con, "#D86E54");
+    drawDot(x, cvx, "#C9A55C");
+    var yL = lin(x), yC = con(x), yCx = cvx(x);
+    $("s11-lin").innerHTML = '<span style="color:'+col(yL)+'">'+fmtPct(yL)+'</span>';
+    $("s11-con").innerHTML = '<span style="color:'+col(yC)+'">'+fmtPct(yC)+'</span>';
+    $("s11-cvx").innerHTML = '<span style="color:'+col(yCx)+'">'+fmtPct(yCx)+'</span>';
+    var ax = Math.abs(x);
+    var msg;
+    if (ax < 2) msg = "Маленькое движение. «Продажа волатильности» в плюсе — собирает премию за то, что ничего не случилось. «Длинная конвексная» в небольшом минусе — это её цена. «Прямая» около нуля.";
+    else if (ax < 8) msg = "Среднее движение. «Прямая» отрабатывает пропорционально. «Продажа волатильности» начала отдавать собранную премию. «Длинная конвексная» подбирается к нулю.";
+    else if (ax < 13) msg = "Большое движение. «Длинная конвексная» далеко в плюсе. «Прямая» пропорционально. «Продажа волатильности» обвалилась — квадратичный минус догнал собранную премию.";
+    else msg = "Экстремальное движение (это твой «чёрный лебедь»). Конвексная позиция взорвалась в плюс. Продавец премии получил всё накопленное за восемь лет назад одним днём.";
+    $("s11-reveal").textContent = msg;
+  }
+  $("s11-slider").addEventListener("input", update);
+  setTimeout(function(){
+    setupCanvas(); update();
+    window.addEventListener("resize", function(){ setupCanvas(); update(); });
+  }, 0);
+})();
+
+/* ========================================================
+   SCENE 12 — Байесовское обновление
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  var likPos = 0.7, likNeg = 0.3;
+  var history = [];
+
+  function renderHistory(chain){
+    var html = '';
+    chain.forEach(function(node, i){
+      if (i > 0){
+        var cls = node.sig ? 'pos' : 'neg';
+        var sym = node.sig ? '+' : '−';
+        html += '<span class="bayes-arrow ' + cls + '">' + sym + '</span>';
+      }
+      html += '<span class="bayes-pill">' + Math.round(node.prob * 100) + '%</span>';
+    });
+    $("s12-hist").innerHTML = html;
+  }
+  function update(){
+    var prior = +$("s12-prior").value / 100;
+    $("s12-pv").textContent = $("s12-prior").value;
+    var p = prior;
+    var chain = [{prob: p, sig: null}];
+    history.forEach(function(sig){
+      if (sig) p = likPos * p / (likPos * p + likNeg * (1 - p));
+      else     p = (1 - likPos) * p / ((1 - likPos) * p + (1 - likNeg) * (1 - p));
+      chain.push({prob: p, sig: sig});
+    });
+    $("s12-now").textContent = Math.round(p * 100) + "%";
+    renderHistory(chain);
+
+    var msg;
+    if (history.length === 0) msg = "Стартовая уверенность " + Math.round(prior*100) + "%. Жми кнопки — добавляй сигналы и смотри, как Байес двигает оценку. Каждый сигнал диагностический ~70/30 — одного хватает, чтобы заметно сдвинуть.";
+    else if (history.length === 1) msg = "Один сигнал уже сдвинул оценку. Если кажется, что несильно — это нормально: Байес умножает вероятности, а не складывает. Но даже скромный сдвиг важен.";
+    else if (history.length < 5) msg = "С каждым следующим сигналом того же типа влияние уменьшается. Это правильно: чем ты уже увереннее, тем меньше тебя должен сдвигать ещё один такой же сигнал.";
+    else msg = "После нескольких сигналов оценка съезжает к краю. Заметь, как противоположный сигнал на этом фоне работает как сильный откат — потому что он идёт против накопленной массы данных.";
+    $("s12-reveal").textContent = msg;
+  }
+  $("s12-prior").addEventListener("input", update);
+  $("s12-pos").addEventListener("click", function(){ history.push(true);  update(); });
+  $("s12-neg").addEventListener("click", function(){ history.push(false); update(); });
+  $("s12-reset").addEventListener("click", function(){ history = []; update(); });
+  update();
+})();
+
+/* ========================================================
+   SCENE 13 — Порядок имеет значение
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  var seqA = [1.15, 1.15, 1.15, 1.15, 1.15, 0.90, 0.90, 0.90, 0.90, 0.90];
+  var seqB = [0.90, 0.90, 0.90, 0.90, 0.90, 1.15, 1.15, 1.15, 1.15, 1.15];
+
+  function simulate(returns, W){
+    var cap = 1000, path = [cap];
+    for (var i = 0; i < returns.length; i++){
+      cap *= returns[i];
+      cap -= W;
+      if (cap < 0) cap = 0;
+      path.push(cap);
+    }
+    return path;
+  }
+  function fmt(n){ return Math.round(n).toLocaleString("ru-RU") }
+
+  function setupCanvas(cv){
+    var dpr = window.devicePixelRatio || 1;
+    var r = cv.getBoundingClientRect();
+    cv.width = r.width * dpr; cv.height = r.height * dpr;
+    var c = cv.getContext("2d"); c.setTransform(1,0,0,1,0,0); c.scale(dpr, dpr);
+    return { ctx: c, w: r.width, h: r.height };
+  }
+  var ca, cb;
+  function init(){
+    ca = setupCanvas($("s13-canvas-a"));
+    cb = setupCanvas($("s13-canvas-b"));
+  }
+  function drawPath(info, path, color){
+    var ctx = info.ctx, w = info.w, h = info.h;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = "#FFFEFA"; ctx.fillRect(0,0,w,h);
+    var maxV = Math.max.apply(null, path.concat([1100])) * 1.05;
+    var minV = 0, range = maxV - minV;
+    ctx.strokeStyle = "#D8CFB9"; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+    var y0 = h - (1000 - minV) / range * (h - 16) - 8;
+    ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(w, y0); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath();
+    path.forEach(function(v, i){
+      var x = (i / (path.length - 1)) * (w - 8) + 4;
+      var y = h - (v - minV) / range * (h - 16) - 8;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+  function update(){
+    var W = +$("s13-w").value;
+    $("s13-wv").textContent = W;
+    var pathA = simulate(seqA, W), pathB = simulate(seqB, W);
+    var endA = pathA[pathA.length - 1], endB = pathB[pathB.length - 1];
+    $("s13-a-end").textContent = endA > 0 ? fmt(endA) : "обнулён";
+    $("s13-b-end").textContent = endB > 0 ? fmt(endB) : "обнулён";
+    drawPath(ca, pathA, "#6B9E5F");
+    drawPath(cb, pathB, "#D86E54");
+    var diff = endA - endB;
+    var msg;
+    if (W === 0) msg = "Без изъятий — итог одинаковый. Это просто умножение чисел, порядок не имеет значения.";
+    else if (endB <= 0 && endA > 0) msg = "При таком уровне изъятия плохой старт обнуляет капитал, хотя ту же сумму доходностей хороший старт оставляет жить. Это и есть sequence-of-returns risk.";
+    else if (diff > 100) msg = "Хороший старт даёт капитал на " + Math.round(diff) + " больше при одинаковой сумме доходностей за 10 лет. Чем больше ты вынимаешь, тем сильнее эффект.";
+    else if (diff > 20) msg = "Разница уже видна: одна и та же сумма доходностей в разном порядке даёт разный итог из-за изъятий.";
+    else msg = "Изъятия маленькие — разница пока скромная. Подвигай слайдер выше.";
+    $("s13-reveal").textContent = msg;
+  }
+  $("s13-w").addEventListener("input", update);
+  setTimeout(function(){
+    init(); update();
+    window.addEventListener("resize", function(){ init(); update(); });
+  }, 0);
+})();
+</script>
+</body>
+</html>
