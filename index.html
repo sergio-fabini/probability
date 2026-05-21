@@ -234,14 +234,21 @@
   /* ----- scene 12 (bayes) ----- */
   .bayes-row { margin-bottom: 12px; }
   #s12-prior { width: 100%; }
-  .bayes-result { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px; background: var(--bg); border-radius: 8px; margin: 10px 0; }
-  .bayes-result-label { font-size: 14px; color: var(--mute); }
-  .bayes-result-val { font: 700 30px/1 Georgia, serif; }
-  .bayes-history { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 12px 0; min-height: 26px; }
-  .bayes-pill { padding: 4px 10px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); color: var(--ink); font-weight: 500; font-size: 13px; }
-  .bayes-arrow { color: var(--mute); font-size: 14px; font-weight: 600; }
-  .bayes-arrow.pos { color: var(--tort); }
-  .bayes-arrow.neg { color: var(--hare); }
+  .bayes-gauge { position: relative; height: 46px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 8px 0 2px; }
+  .bayes-gauge-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: rgba(107,158,95,0.28); transition: width .45s cubic-bezier(.4,0,.2,1); }
+  .bayes-gauge-mark { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--tort); transition: left .45s cubic-bezier(.4,0,.2,1); }
+  .bayes-gauge-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 700 22px/1 Georgia, serif; }
+  .bayes-delta { text-align: center; font-size: 14px; font-weight: 500; height: 22px; margin-bottom: 4px; }
+  .bayes-delta.up { color: var(--tort); }
+  .bayes-delta.down { color: var(--hare); }
+  .bayes-log-title { font-size: 12px; color: var(--mute); margin: 14px 0 6px; }
+  .bayes-log { display: flex; flex-direction: column; gap: 3px; font-size: 13px; }
+  .bayes-log-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; border-bottom: .5px solid var(--line); }
+  .bayes-log-row .sig { flex: 1; color: var(--mute); }
+  .bayes-log-row .mv { width: 78px; text-align: right; font-weight: 500; }
+  .bayes-log-row .mv.up { color: var(--tort); }
+  .bayes-log-row .mv.down { color: var(--hare); }
+  .bayes-log-row .res { width: 52px; text-align: right; font-weight: 600; }
   button.bayes-btn-pos { background: transparent; color: var(--tort); border: 1px solid var(--tort); }
   button.bayes-btn-pos:hover { background: rgba(107,158,95,0.12); }
   button.bayes-btn-neg { background: transparent; color: var(--hare); border: 1px solid var(--hare); }
@@ -250,6 +257,10 @@
   /* ----- scene 13 (sequence) ----- */
   #s13-w { width: 100%; }
   #s13-canvas-a, #s13-canvas-b { width: 100%; height: 110px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; display: block; margin: 8px 0 6px; }
+
+  /* ----- volatility drag & ergodicity ----- */
+  #vol-canvas, #erg-canvas { width: 100%; height: 200px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; display: block; margin: 8px 0 10px; }
+  #vol-slider, #erg-slider { width: 100%; }
 
   /* ----- scene 14 (takeaways) ----- */
   .takeaway { background: var(--bg); border-left: 3px solid var(--gold); padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 15px; line-height: 1.55; }
@@ -317,8 +328,8 @@
 </div>
 
 <p>
-  Если повторить эту прогулку много раз, увидишь закономерность: иногда заяц чудовищно богатеет,
-  иногда обнуляется в первый же неудачный год. Черепаха растёт скучно, но <em>всегда</em> доходит до финиша.
+  Если повторить эту прогулку много раз, увидишь закономерность: иногда заяц чудовищно богатеет (но очень редко),
+  а почти всегда обнуляется в первый же неудачный год. Черепаха растёт скромно, но <em>почти всегда</em> доходит до финиша живой.
 </p>
 <p>
   Это не «о морали труда». Это про математику дисперсии:
@@ -378,7 +389,7 @@
 <p>
   «Смелая ставка»: 60% шанс удвоить капитал, 40% шанс потерять всё. Математическое ожидание +20% за раунд.
   «Скучная ставка»: 75% шанс +10%, 25% шанс −5%. Математическое ожидание +6% за раунд.
-  По учебнику смелая выгоднее почти в четыре раза. Давай посмотрим в один раунд, а потом в двадцать.
+  По учебнику смелая выгоднее примерно втрое. Давай посмотрим в один раунд, а потом в двадцать.
 </p>
 
 <div class="toy">
@@ -408,8 +419,8 @@
 
 <p>
   В одном раунде смелая ставка часто выглядит блестяще. Но если играть двадцать раз подряд,
-  с компаундингом, шанс смелой пройти весь путь без единого нуля ≈ 0,6²⁰ ≈ <b>0,4%</b>.
-  В 99,6% случаев ты обнулишься где-то по дороге — и больше не отыграешься.
+  с компаундингом, шанс смелой пройти весь путь без единого нуля ≈ 0,6²⁰ ≈ <b>0,004%</b> — это примерно один шанс из 27 000.
+  Почти наверняка ты обнулишься где-то по дороге — и больше не отыграешься.
   Скучная же ставка в среднем приходит к ≈3× от стартового капитала.
 </p>
 <p>
@@ -418,9 +429,72 @@
 </p>
 
 <!-- ============================================================
-     SCENE 4
+     SCENE 4 — Волатильность съедает доходность
 ============================================================ -->
-<h2><span class="num">4</span>Машина сценариев — твоя очередь</h2>
+<h2><span class="num">4</span>Волатильность съедает доходность</h2>
+<p>
+  Чтобы проиграть, ноль вообще не нужен. Возьмём два актива с ОДИНАКОВОЙ средней доходностью — оба в среднем дают +8% в год. Один спокойный, другой болтается туда-сюда. Слайдер крутит размах болтанки второго.
+</p>
+<p>
+  Смотри на итог через 30 лет: средняя у них одна и та же, но компаунд — фактический рост капитала — у болтающегося НИЖЕ. И чем сильнее болтанка, тем больше разрыв. Никто не обнуляется. Болтающийся просто тихо заканчивает беднее.
+</p>
+
+<div class="toy" id="sceneVol">
+  <canvas id="vol-canvas" width="640" height="200"></canvas>
+  <div class="kelly-line">
+    <span>Размах болтанки второго актива</span>
+    <span class="kelly-val">±<span id="vol-sv">30</span>%</span>
+  </div>
+  <input type="range" id="vol-slider" min="0" max="55" value="30" step="1" />
+  <div class="kelly-grid" style="margin-top:10px">
+    <div class="kelly-cell" style="border-top:3px solid var(--tort)"><div class="lbl">спокойный · итог</div><div class="val" id="vol-calm">—</div></div>
+    <div class="kelly-cell" style="border-top:3px solid var(--hare)"><div class="lbl">болтающийся · итог</div><div class="val" id="vol-wild">—</div></div>
+    <div class="kelly-cell"><div class="lbl">средняя у обоих</div><div class="val">+8%/год</div></div>
+  </div>
+  <div class="reveal" id="vol-reveal" style="margin-top:14px"></div>
+</div>
+
+<p>
+  Это «налог на болтанку»: фактический рост ≈ средняя доходность минус половина квадрата волатильности. Поэтому ровная ставка на сетку бьёт концентрированную даже когда у обеих одинаковая средняя — просто потому, что её не мотает. Разрыв тут — чистая потеря, и до нуля никто не дошёл.
+</p>
+
+<!-- ============================================================
+     SCENE 5 — Среднее врёт: ансамбль против тебя
+============================================================ -->
+<h2><span class="num">5</span>Среднее врёт: ансамбль против тебя</h2>
+<p>
+  И самое глубокое. Ставка: 50% шанс +50%, 50% шанс −40%. Матожидание +5% за раунд — по учебнику отличная ставка, бери и богатей. Но «среднее» считает, что было бы, если бы тебя было много тысяч параллельно. А ты — один.
+</p>
+<p>
+  Каждая точка ниже — отдельный игрок, проживший эту ставку столько раундов, сколько на слайдере. Красная метка — среднее по всем (его тянут вверх несколько везунчиков). Зелёная — типичный игрок, медиана. Двигай слайдер: чем дольше играешь, тем дальше среднее и реальность расходятся.
+</p>
+
+<div class="toy" id="sceneErg">
+  <canvas id="erg-canvas" width="640" height="200"></canvas>
+  <div class="kelly-line">
+    <span>Сколько раундов проживёт каждый игрок</span>
+    <span class="kelly-val"><span id="erg-rv">30</span></span>
+  </div>
+  <input type="range" id="erg-slider" min="5" max="50" value="30" step="1" />
+  <div class="kelly-grid" style="margin-top:10px">
+    <div class="kelly-cell" style="border-top:3px solid var(--hare)"><div class="lbl">среднее по всем</div><div class="val" id="erg-mean">—</div></div>
+    <div class="kelly-cell" style="border-top:3px solid var(--tort)"><div class="lbl">типичный игрок (медиана)</div><div class="val" id="erg-median">—</div></div>
+    <div class="kelly-cell"><div class="lbl">матожидание / раунд</div><div class="val">+5%</div></div>
+  </div>
+  <div class="reveal" id="erg-reveal" style="margin-top:14px"></div>
+  <div class="controls" style="margin-top:10px">
+    <button id="erg-shuffle" class="alt">Сыграть заново</button>
+  </div>
+</div>
+
+<p>
+  Та же ставка, два разных ответа. Среднее растёт — потому что в толпе всегда находится горстка тех, кому выпали почти одни «+50%», и они тащат среднее в космос. Но ты живёшь ОДНУ траекторию, и на ней ×1,5 и ×0,6 чередуются так, что капитал тает (фактический рост ≈ −5%/раунд). «Положительное матожидание» — это про ансамбль, а не про тебя. Вот почему сетку оценивают по тому, что будет с ТОБОЙ за много лет, а не по красивому среднему.
+</p>
+
+<!-- ============================================================
+     SCENE 6 — Машина сценариев
+============================================================ -->
+<h2><span class="num">6</span>Машина сценариев — твоя очередь</h2>
 <p>
   Хватит смотреть, как играют другие. Расставь фишки сам. У тебя десять фишек, четыре корзины и шесть лет.
 </p>
@@ -484,13 +558,13 @@
 </div>
 
 <p>
-  Попробуй на одном прогоне «9 в A, 1 в C» — заметишь, как один плохой год тебя сносит. На другом сыграй «3-3-2-2» — скучно, но всегда жив. Это и есть метод одной фразой.
+  Попробуй на одном прогоне «9 в A, 1 в C» — заметишь, как один плохой год тебя сносит. На другом сыграй «2-4-3-1» — скучно, но почти всегда жив. Это и есть метод одной фразой.
 </p>
 
 <!-- ============================================================
      SCENE 5
 ============================================================ -->
-<h2><span class="num">5</span>Чёрный лебедь</h2>
+<h2><span class="num">7</span>Чёрный лебедь</h2>
 <p>
   Самая хитрая корзина — wildcards. Большую часть времени она выглядит как мёртвый груз: ничего не приносит, занимает место. Её хочется убрать. Так делают почти все.
 </p>
@@ -529,7 +603,7 @@
 <!-- ============================================================
      SCENE 6
 ============================================================ -->
-<h2><span class="num">6</span>Сила переоценки</h2>
+<h2><span class="num">8</span>Сила переоценки</h2>
 <p>
   Окей, сетка работает только если ты честно умеешь оценивать вероятности. Большинство людей переоценивает свою уверенность. Давай проверим тебя на пяти простых вопросах. Для каждого выбери, верно это или нет, и насколько ты в этом уверен.
 </p>
@@ -549,7 +623,7 @@
 <!-- ============================================================
      SCENE 7
 ============================================================ -->
-<h2><span class="num">7</span>Премортем</h2>
+<h2><span class="num">9</span>Премортем</h2>
 <p>
   Лучший способ найти риски, которых ты сейчас не видишь — представить, что катастрофа уже произошла, и спросить «как это получилось?». Это называется premortem. Десять минут такого упражнения часто меняют решение целиком.
 </p>
@@ -581,7 +655,7 @@
 <!-- ============================================================
      SCENE 8 — Барбелл по Талебу
 ============================================================ -->
-<h2><span class="num">8</span>Барбелл по Талебу</h2>
+<h2><span class="num">10</span>Барбелл по Талебу</h2>
 <p>
   Талеб собирает всё это в одну метафору — «штанга». Бывают три типа портфелей. «Всё в середине» (классические 60/40 акции/облигации) — концентрируется на средне-рисковом. «Бельевая верёвка» — равномерно по всем уровням риска. «Штанга» — много очень безопасного и немного очень рискованного, всю серёдку выкидываем.
 </p>
@@ -618,13 +692,13 @@
 </div>
 
 <p>
-  В спокойные годы «середина» обходит штангу — потому что штанга платит премию за то, что половина капитала простаивает в ультра-надёжном, а другая половина в лотерейных билетах. Зато в кризис эта же конструкция оказывается единственной, кто не съёжился: безопасная часть устояла, а рискованная выстрелила на хаосе. «Бельевая верёвка» застряла где-то посередине — нигде не побеждает по-настоящему.
+  В спокойные годы «середина» обходит штангу — потому что штанга платит премию за то, что половина капитала простаивает в ультра-надёжном, а другая половина в лотерейных билетах. Зато в кризис эта же конструкция выстреливает сильнее всех: безопасная часть устояла, а рискованная рванула на хаосе. «Бельевая верёвка» — вечный компромисс: никогда не лучшая, но и никогда не худшая, поэтому ни в один год не побеждает по-настоящему.
 </p>
 
 <!-- ============================================================
      SCENE 9 — Критерий Келли
 ============================================================ -->
-<h2><span class="num">9</span>Критерий Келли</h2>
+<h2><span class="num">11</span>Критерий Келли</h2>
 <p>
   Понятно, что ставить надо НА что-то — но какой долей капитала? Возьмём простую игру. На каждом ходу ставишь часть капитала. С вероятностью p твоя ставка удваивается, с вероятностью 1−p ты её теряешь. Шанс p ты задашь сам верхним слайдером — это твой «edge», то, насколько ты вообще уверен в этой ставке.
 </p>
@@ -669,7 +743,7 @@
 <!-- ============================================================
      SCENE 10 — Время и разорение
 ============================================================ -->
-<h2><span class="num">10</span>Время и разорение</h2>
+<h2><span class="num">12</span>Время и разорение</h2>
 <p>
   Последняя контр-интуитивная вещь, и одна из самых важных. Кажется, что 5% годовой шанс плохого исхода — это «почти безопасно». На самом деле 5% в год — это 23% за пять лет, 40% за десять, 64% за двадцать. Время — главный враг любого постоянного риска, даже маленького.
 </p>
@@ -706,7 +780,7 @@
 <!-- ============================================================
      SCENE 11 — Конвексность
 ============================================================ -->
-<h2><span class="num">11</span>Конвексность — форма твоей ставки</h2>
+<h2><span class="num">13</span>Конвексность — форма твоей ставки</h2>
 <p>
   У каждой позиции есть «форма» — график того, как твой результат меняется в зависимости от того, насколько реальность отошла от ожидания. Чаще всего эта форма — прямая: реальность сдвинулась на 5%, ты тоже на 5%. Но есть две другие интересные формы, и они объясняют половину магии штанги.
 </p>
@@ -736,12 +810,12 @@
 <!-- ============================================================
      SCENE 12 — Байесовское обновление
 ============================================================ -->
-<h2><span class="num">12</span>Байесовское обновление</h2>
+<h2><span class="num">14</span>Байесовское обновление</h2>
 <p>
-  Калибровка (сцена 6) научила тебя честно оценивать вероятности. Но это только половина дела. Вторая половина — уметь МЕНЯТЬ свою оценку, когда приходит новая информация. Большинство людей этого не делают: они либо застревают на первой интуиции, либо, наоборот, дёргаются от каждого сигнала.
+  Калибровка (сцена 8) научила тебя честно оценивать вероятности. Но это только половина дела. Вторая половина — уметь МЕНЯТЬ свою оценку, когда приходит новая информация. Большинство людей этого не делают: они либо застревают на первой интуиции, либо, наоборот, дёргаются от каждого сигнала.
 </p>
 <p>
-  Представь: ты оцениваешь шансы какого-то будущего (стартап взлетит, кандидат сработается, идея найдёт рынок). Стартовая уверенность — слайдер ниже. Каждый новый сигнал диагностический примерно 70/30 (умеренно информативный — типичный реальный сигнал). Жми кнопки и смотри, как должна меняться твоя оценка.
+  Представь: ты оцениваешь шансы какого-то будущего (стартап взлетит, кандидат сработается, идея найдёт рынок). Стартовую уверенность и силу каждого сигнала ты задаёшь слайдерами ниже (по умолчанию сигнал 70/30 — умеренно информативный). Жми «хорошая / плохая новость» и смотри в журнале, на сколько пунктов сдвинулась оценка.
 </p>
 
 <div class="toy" id="scene12">
@@ -753,30 +827,42 @@
     </div>
   </div>
 
-  <div class="bayes-result">
-    <div class="bayes-result-label">Текущая оценка после сигналов:</div>
-    <div class="bayes-result-val" id="s12-now">50%</div>
+  <div class="bayes-row">
+    <div class="time-label">Сила сигнала — насколько новость информативна</div>
+    <div class="time-input">
+      <input type="range" id="s12-strength" min="55" max="92" value="70" step="1" />
+      <span class="time-val"><span id="s12-sv">70</span>/<span id="s12-sv2">30</span></span>
+    </div>
   </div>
 
-  <div class="bayes-history" id="s12-hist"></div>
+  <div class="time-label" style="margin-top:6px">Твоя текущая оценка</div>
+  <div class="bayes-gauge">
+    <div class="bayes-gauge-fill" id="s12-fill"></div>
+    <div class="bayes-gauge-mark" id="s12-mark"></div>
+    <div class="bayes-gauge-num" id="s12-now">50%</div>
+  </div>
+  <div class="bayes-delta" id="s12-delta">&nbsp;</div>
 
-  <div class="controls" style="margin-top:10px">
-    <button id="s12-pos" class="bayes-btn-pos">+ позитивный сигнал</button>
-    <button id="s12-neg" class="bayes-btn-neg">− негативный сигнал</button>
+  <div class="controls" style="margin-top:4px">
+    <button id="s12-pos" class="bayes-btn-pos">▲ хорошая новость</button>
+    <button id="s12-neg" class="bayes-btn-neg">▼ плохая новость</button>
     <button id="s12-reset" class="alt">Сначала</button>
   </div>
+
+  <div class="bayes-log-title">Как двигалась оценка (смотри на средний столбец — на сколько сдвинул каждый сигнал):</div>
+  <div class="bayes-log" id="s12-log"></div>
 
   <div class="reveal" id="s12-reveal" style="margin-top:14px"></div>
 </div>
 
 <p>
-  Заметь две вещи. Первое: один сигнал реально двигает оценку — Байес умножает вероятности, и даже умеренно диагностический сигнал даёт ощутимый сдвиг. Большинство людей сидят на стартовой интуиции дольше, чем должны. Второе: чем больше сигналов одного типа уже было, тем СЛАБЕЕ эффект следующего такого же — а противоположный сигнал в этот момент бьёт особенно сильно. Это правильно: ты обновляешь оценку, а не складываешь голоса.
+  Один чистый вывод: размер шага определяется НЕ тем, хорошая новость или плохая, а тем, ГДЕ ты сейчас и куда она тебя тянет — к краю (мелкий шаг) или к центру (крупный). Практический смысл: пока ты в зоне сомнений (около 50%), каждый факт двигает оценку сильно — информация там самая ценная, собирай её. Когда ты уже почти уверен (у края), один факт почти ничего не меняет — чтобы тебя сдвинуть, нужен поток фактов, а не одна новость. Силу самого сигнала задаёт верхний слайдер: чем информативнее (89/11 против 55/45), тем крупнее шаги. Байес умножает уверенность, а не складывает голоса.
 </p>
 
 <!-- ============================================================
      SCENE 13 — Порядок имеет значение
 ============================================================ -->
-<h2><span class="num">13</span>Порядок имеет значение</h2>
+<h2><span class="num">15</span>Порядок имеет значение</h2>
 <p>
   Последняя контр-интуитивная штука. У двух траекторий одинаковая сумма доходностей за 10 лет — пять «хороших» (+15%) и пять «плохих» (−10%). В одной хорошие годы идут первыми, в другой — последними. По арифметике итог должен быть одинаковым.
 </p>
@@ -821,7 +907,7 @@
 <!-- ============================================================
      SCENE 14 — Что дальше
 ============================================================ -->
-<h2><span class="num">14</span>Что дальше</h2>
+<h2><span class="num">16</span>Что дальше</h2>
 <p>
   Если из всего, что ты только что прожил, нужно запомнить одно — пусть это будет пять простых вещей:
 </p>
@@ -841,8 +927,8 @@
 </p>
 
 <footer>
-  <p>Четырнадцать сцен пройдены. Сетку не нужно запоминать — она становится привычкой через практику.</p>
-  <p style="margin-top:18px">«Сетка» · v1.2 · черновик · open source</p>
+  <p>Шестнадцать сцен пройдены. Сетку не нужно запоминать — она становится привычкой через практику.</p>
+  <p style="margin-top:18px">«Сетка» · v1.3 · черновик · open source</p>
 </footer>
 
 </main>
@@ -862,7 +948,7 @@
     { n:"Чёрный лебедь", d:"произошло то, чего никто не ожидал" }
   ];
   var hareAlloc = [10,0,0,0];   // всё на "идеальный"
-  var tortAlloc = [3,3,2,2];    // сетка
+  var tortAlloc = [2,4,3,1];    // сетка (растёт +4.4%/год, обнуление ~5%)
   var KEYS = ["a","b","c","d"];
 
   var state = { year: 0, hare: 1000, tort: 1000, hareDead:false, tortDead:false, busy:false };
@@ -1146,7 +1232,7 @@
     if (st.boldDead){
       msg = "Смелая ставка обнулилась на одном из раундов. Скучная пришла к "+fmt(st.steady)+" — это "+Math.round((st.steady/1000-1)*100)+"% за двадцать раундов.";
     } else {
-      msg = "Редкий случай: смелая прошла все 20 раундов и теперь стоит "+fmt(st.bold)+". Скучная пришла к "+fmt(st.steady)+". Шанс такого сценария — около 0,4%. Запусти ещё раз — увидишь, что обычно происходит.";
+      msg = "Редкий случай: смелая прошла все 20 раундов и теперь стоит "+fmt(st.bold)+". Скучная пришла к "+fmt(st.steady)+". Шанс такого сценария — около 0,004% (один из 27 000). Запусти ещё раз — увидишь, что обычно происходит.";
     }
     verdict.innerHTML = msg;
     verdict.style.display = "block";
@@ -1280,14 +1366,14 @@
 ======================================================== */
 (function(){
   var QUIZ = [
-    { q: "От Москвы до Владивостока больше 9 000 километров", a: true },
+    { q: "Транссибирская магистраль (Москва—Владивосток) длиннее 9 000 километров", a: true },
     { q: "Венера ближе к Солнцу, чем Меркурий", a: false },
     { q: "Эльбрус выше Монблана", a: true },
     { q: "Население Москвы (с агломерацией) больше населения Лондона", a: true },
     { q: "По площади поверхности Россия больше Плутона", a: false }
   ];
   var FACTS = [
-    "Москва—Владивосток ≈ 9 100 км по прямой.",
+    "Транссиб ≈ 9 289 км — самая длинная железная дорога в мире (по прямой между городами всего ~6 400 км).",
     "Меркурий ближе к Солнцу (≈58 млн км), Венера — следующая (≈108 млн км).",
     "Эльбрус 5 642 м, Монблан 4 810 м.",
     "Москва ≈ 13 млн человек (с агломерацией), Лондон ≈ 9 млн.",
@@ -1750,39 +1836,57 @@
 ======================================================== */
 (function(){
   function $(id){return document.getElementById(id)}
-  var likPos = 0.7, likNeg = 0.3;
   var history = [];
-
-  function renderHistory(chain){
-    var html = '';
-    chain.forEach(function(node, i){
-      if (i > 0){
-        var cls = node.sig ? 'pos' : 'neg';
-        var sym = node.sig ? '+' : '−';
-        html += '<span class="bayes-arrow ' + cls + '">' + sym + '</span>';
-      }
-      html += '<span class="bayes-pill">' + Math.round(node.prob * 100) + '%</span>';
-    });
-    $("s12-hist").innerHTML = html;
+  function posterior(p, sig, lp){
+    var ln = 1 - lp;
+    if (sig) return lp * p / (lp * p + ln * (1 - p));
+    return ln * p / (ln * p + lp * (1 - p));
   }
+  function rnd(x){ return Math.round(x); }
   function update(){
     var prior = +$("s12-prior").value / 100;
+    var strength = +$("s12-strength").value;
+    var lp = strength / 100;
     $("s12-pv").textContent = $("s12-prior").value;
+    $("s12-sv").textContent = strength;
+    $("s12-sv2").textContent = 100 - strength;
+    // build chain with deltas
     var p = prior;
-    var chain = [{prob: p, sig: null}];
+    var steps = [{p: prior, delta: null, sig: null}];
     history.forEach(function(sig){
-      if (sig) p = likPos * p / (likPos * p + likNeg * (1 - p));
-      else     p = (1 - likPos) * p / ((1 - likPos) * p + (1 - likNeg) * (1 - p));
-      chain.push({prob: p, sig: sig});
+      var np = posterior(p, sig, lp);
+      steps.push({p: np, delta: (np - p) * 100, sig: sig});
+      p = np;
     });
-    $("s12-now").textContent = Math.round(p * 100) + "%";
-    renderHistory(chain);
-
+    // gauge
+    $("s12-fill").style.width = (p * 100) + "%";
+    $("s12-mark").style.left = (p * 100) + "%";
+    $("s12-now").textContent = rnd(p * 100) + "%";
+    // last-move badge
+    var dEl = $("s12-delta");
+    if (steps.length > 1){
+      var d = steps[steps.length - 1].delta;
+      dEl.textContent = "последний сигнал сдвинул оценку на " + (d >= 0 ? "+" : "") + rnd(d) + " п.п.";
+      dEl.className = "bayes-delta " + (d >= 0 ? "up" : "down");
+    } else { dEl.innerHTML = "&nbsp;"; dEl.className = "bayes-delta"; }
+    // log
+    var html = "";
+    steps.forEach(function(s, i){
+      if (i === 0){
+        html += '<div class="bayes-log-row"><span class="sig">старт</span><span class="mv"></span><span class="res">' + rnd(s.p*100) + '%</span></div>';
+      } else {
+        var up = s.delta >= 0;
+        html += '<div class="bayes-log-row"><span class="sig">' + (up ? "▲ хорошая новость" : "▼ плохая новость") + '</span>' +
+          '<span class="mv ' + (up ? "up" : "down") + '">' + (up ? "+" : "") + rnd(s.delta) + ' п.п.</span>' +
+          '<span class="res">' + rnd(s.p*100) + '%</span></div>';
+      }
+    });
+    $("s12-log").innerHTML = html;
+    // reveal
     var msg;
-    if (history.length === 0) msg = "Стартовая уверенность " + Math.round(prior*100) + "%. Жми кнопки — добавляй сигналы и смотри, как Байес двигает оценку. Каждый сигнал диагностический ~70/30 — одного хватает, чтобы заметно сдвинуть.";
-    else if (history.length === 1) msg = "Один сигнал уже сдвинул оценку. Если кажется, что несильно — это нормально: Байес умножает вероятности, а не складывает. Но даже скромный сдвиг важен.";
-    else if (history.length < 5) msg = "С каждым следующим сигналом того же типа влияние уменьшается. Это правильно: чем ты уже увереннее, тем меньше тебя должен сдвигать ещё один такой же сигнал.";
-    else msg = "После нескольких сигналов оценка съезжает к краю. Заметь, как противоположный сигнал на этом фоне работает как сильный откат — потому что он идёт против накопленной массы данных.";
+    var n = history.length;
+    if (n === 0) msg = "Оценка стоит на стартовых " + rnd(prior*100) + "%. Жми «хорошая / плохая новость» — и в среднем столбце видно, на сколько пунктов сдвинулась оценка.";
+    else msg = "Тип новости не задаёт размер шага — его задаёт ПОЛОЖЕНИЕ. У краёв (близко к 0% или 100%) любой сигнал двигает чуть-чуть: тебя уже трудно удивить. В середине (около 50%) — двигает сильно. Та же плохая новость у 98% отнимает пару процентов, а у 89% утаскивает к центру.";
     $("s12-reveal").textContent = msg;
   }
   $("s12-prior").addEventListener("input", update);
@@ -1866,6 +1970,143 @@
     init(); update();
     window.addEventListener("resize", function(){ init(); update(); });
   }, 0);
+})();
+
+/* ========================================================
+   SCENE 4 — Волатильность съедает доходность
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  function fmt(n){ return Math.round(n).toLocaleString("ru-RU") }
+  var mean = 0.08, calmSpread = 0.04, YEARS = 30;
+  var canvas = $("vol-canvas"), ctx, dims;
+  function setup(){
+    var dpr=window.devicePixelRatio||1, r=canvas.getBoundingClientRect();
+    canvas.width=r.width*dpr; canvas.height=r.height*dpr;
+    ctx=canvas.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    dims={w:r.width,h:r.height};
+  }
+  function path(spread){
+    var cap=1000, p=[cap];
+    for(var i=0;i<YEARS;i++){
+      cap *= (i%2===0) ? (1+mean+spread) : (1+mean-spread);
+      p.push(cap);
+    }
+    return p;
+  }
+  function geom(spread){ return Math.sqrt((1+mean+spread)*(1+mean-spread)) - 1; }
+  function draw(calmP, wildP){
+    var w=dims.w, h=dims.h;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle="#FFFEFA"; ctx.fillRect(0,0,w,h);
+    var all=calmP.concat(wildP);
+    var maxV=Math.max.apply(null, all), minV=Math.min.apply(null, all.concat([1000]));
+    var lMax=Math.log(maxV*1.05), lMin=Math.log(Math.max(minV,1)*0.92);
+    function yOf(v){ return h - (Math.log(Math.max(v,1))-lMin)/(lMax-lMin)*(h-16) - 8; }
+    ctx.strokeStyle="#D8CFB9"; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    var y0=yOf(1000); ctx.beginPath(); ctx.moveTo(0,y0); ctx.lineTo(w,y0); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#A89B85"; ctx.font="10px -apple-system, sans-serif"; ctx.textAlign="left";
+    ctx.fillText("старт 1000", 6, y0-4);
+    function line(p,color){
+      ctx.strokeStyle=color; ctx.lineWidth=1.8; ctx.beginPath();
+      for(var i=0;i<p.length;i++){ var x=(i/(p.length-1))*w, y=yOf(p[i]); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.stroke();
+    }
+    line(calmP,"#6B9E5F"); line(wildP,"#D86E54");
+  }
+  function update(){
+    var spread=+$("vol-slider").value/100;
+    $("vol-sv").textContent=$("vol-slider").value;
+    var calmP=path(calmSpread), wildP=path(spread);
+    draw(calmP, wildP);
+    $("vol-calm").textContent=fmt(calmP[calmP.length-1]);
+    $("vol-wild").textContent=fmt(wildP[wildP.length-1]);
+    var gw=geom(spread), gwPct=Math.round(gw*1000)/10;
+    var msg;
+    if (spread<0.10) msg="Болтанка маленькая — разрыв почти незаметен, оба растут примерно одинаково. Крути слайдер вправо.";
+    else if (spread<0.30) msg="Болтающийся уже отстаёт по итогу, хотя средняя у него те же +8%. Фактический рост у него ≈"+gwPct+"%/год.";
+    else if (gw>0) msg="Разрыв стал большим: при той же средней +8% болтающийся растёт лишь на ≈"+gwPct+"%/год. Болтанка съедает разницу.";
+    else msg="Смотри: средняя у него по-прежнему +8%/год, но капитал ПАДАЕТ (≈"+gwPct+"%/год по факту). Положительное среднее, реальный убыток — и без всякого нуля.";
+    $("vol-reveal").textContent=msg;
+  }
+  $("vol-slider").addEventListener("input", update);
+  setTimeout(function(){ setup(); update(); window.addEventListener("resize",function(){setup();update();}); },0);
+})();
+
+/* ========================================================
+   SCENE 5 — Среднее врёт: ансамбль против тебя
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  function fmt(n){ return Math.round(n).toLocaleString("ru-RU") }
+  var NPLAYERS=300;
+  var canvas=$("erg-canvas"), ctx, dims;
+  function setup(){
+    var dpr=window.devicePixelRatio||1, r=canvas.getBoundingClientRect();
+    canvas.width=r.width*dpr; canvas.height=r.height*dpr;
+    ctx=canvas.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    dims={w:r.width,h:r.height};
+  }
+  function rng(seed){ return function(){ seed=(seed*9301+49297)%233280; return seed/233280; }; }
+  function simulate(rounds, seed){
+    var rand=rng(seed), finals=[];
+    for(var p=0;p<NPLAYERS;p++){
+      var cap=1000;
+      for(var i=0;i<rounds;i++){ cap *= (rand()<0.5) ? 1.5 : 0.6; }
+      finals.push(cap);
+    }
+    return finals;
+  }
+  function draw(finals, mean, median){
+    var w=dims.w, h=dims.h;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle="#FFFEFA"; ctx.fillRect(0,0,w,h);
+    var maxV=Math.max.apply(null, finals.concat([mean,2000]));
+    var minV=Math.min.apply(null, finals.concat([median,1]));
+    var lMax=Math.log(maxV*1.15), lMin=Math.log(Math.max(minV,0.5)*0.85);
+    function xOf(v){ return (Math.log(Math.max(v,0.5))-lMin)/(lMax-lMin)*(w-20)+12; }
+    var x1000=xOf(1000);
+    ctx.strokeStyle="#D8CFB9"; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(x1000,0); ctx.lineTo(x1000,h-14); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#A89B85"; ctx.font="10px -apple-system, sans-serif"; ctx.textAlign="center";
+    ctx.fillText("старт 1000", x1000, h-3);
+    for(var i=0;i<finals.length;i++){
+      var x=xOf(finals[i]);
+      var y=18 + (i%10)*((h-46)/10) + (i*7%5);
+      ctx.fillStyle = finals[i]>=1000 ? "rgba(107,158,95,0.5)" : "rgba(216,110,84,0.5)";
+      ctx.beginPath(); ctx.arc(x,y,2.4,0,Math.PI*2); ctx.fill();
+    }
+    var xm=xOf(mean);
+    ctx.strokeStyle="#D86E54"; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(xm,0); ctx.lineTo(xm,h-14); ctx.stroke();
+    ctx.fillStyle="#D86E54"; ctx.textAlign="center"; ctx.font="10px -apple-system, sans-serif";
+    ctx.fillText("среднее", xm, 11);
+    var xmed=xOf(median);
+    ctx.strokeStyle="#6B9E5F"; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(xmed,0); ctx.lineTo(xmed,h-14); ctx.stroke();
+    ctx.fillStyle="#6B9E5F"; ctx.fillText("ты", xmed, 11);
+  }
+  var curSeed=12345;
+  function update(){
+    var rounds=+$("erg-slider").value;
+    $("erg-rv").textContent=rounds;
+    var finals=simulate(rounds, curSeed);
+    var mean=finals.reduce(function(a,b){return a+b},0)/finals.length;
+    var sorted=finals.slice().sort(function(a,b){return a-b});
+    var median=sorted[Math.floor(sorted.length/2)];
+    $("erg-mean").textContent=fmt(mean);
+    $("erg-median").textContent=fmt(median);
+    draw(finals, mean, median);
+    var msg;
+    if (median>=1000) msg="Пока раундов мало, большинство ещё в плюсе. Двинь слайдер вправо — и смотри, как медиана уходит вниз, а среднее улетает вверх.";
+    else {
+      var lostPct=Math.round((1-median/1000)*100);
+      var meanX=(mean/1000).toFixed(1);
+      msg="Среднее выросло в "+meanX+"× — а типичный игрок потерял "+lostPct+"%. Одна и та же ставка. Среднее тащит вверх горстка везунчиков справа, а ты, скорее всего, среди тех, кто слева.";
+    }
+    $("erg-reveal").textContent=msg;
+  }
+  $("erg-slider").addEventListener("input", update);
+  $("erg-shuffle").addEventListener("click", function(){ curSeed=Math.floor(Math.random()*1000000)+1; update(); });
+  setTimeout(function(){ setup(); update(); window.addEventListener("resize",function(){setup();update();}); },0);
 })();
 </script>
 </body>
