@@ -262,6 +262,18 @@
   #vol-canvas, #erg-canvas { width: 100%; height: 200px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; display: block; margin: 8px 0 10px; }
   #vol-slider, #erg-slider { width: 100%; }
 
+  /* ----- correlation ----- */
+  #corr-canvas { width: 100%; height: 200px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; display: block; margin: 6px 0 10px; }
+  #corr-n, #corr-r { width: 100%; }
+
+  /* ----- drawdown & base rates ----- */
+  #dd-canvas { width: 100%; height: 180px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; display: block; margin: 6px 0 10px; }
+  #dd-slider, #br-slider { width: 100%; }
+  .br-bar { position: relative; height: 42px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; margin: 16px 0 4px; }
+  .br-mark { position: absolute; top: -5px; bottom: -5px; width: 3px; border-radius: 2px; transition: left .3s; }
+  .br-mark.gut { background: #6889B0; }
+  .br-mark.base { background: var(--hare); }
+
   /* ----- scene 14 (takeaways) ----- */
   .takeaway { background: var(--bg); border-left: 3px solid var(--gold); padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 15px; line-height: 1.55; }
   .reading { font-size: 14.5px; line-height: 1.7; }
@@ -696,9 +708,43 @@
 </p>
 
 <!-- ============================================================
-     SCENE 9 — Критерий Келли
+     SCENE 11 — Корреляция
 ============================================================ -->
-<h2><span class="num">11</span>Критерий Келли</h2>
+<h2><span class="num">11</span>Корреляция: думаешь, у тебя 10 ставок?</h2>
+<p>
+  Спред спасает — но только если ставки независимы. Если все они движутся вместе (коррелируют), то десять ставок ведут себя как одна большая: в кризис валятся разом, и вся «диверсификация» оказывается иллюзией.
+</p>
+<p>
+  Два слайдера: число ставок и корреляция между ними. Сверху — разброс исходов ОДНОЙ ставки (для сравнения). Снизу — разброс исходов твоего портфеля. Смотри, как нижнее облако сжимается к центру при независимых ставках и расползается обратно, когда корреляция растёт.
+</p>
+
+<div class="toy" id="sceneCorr">
+  <canvas id="corr-canvas" width="640" height="200"></canvas>
+  <div class="kelly-line">
+    <span>Сколько у тебя ставок</span>
+    <span class="kelly-val"><span id="corr-nv">10</span></span>
+  </div>
+  <input type="range" id="corr-n" min="1" max="20" value="10" step="1" />
+  <div class="kelly-line" style="margin-top:12px">
+    <span>Корреляция между ними</span>
+    <span class="kelly-val"><span id="corr-rv">50</span>%</span>
+  </div>
+  <input type="range" id="corr-r" min="0" max="100" value="50" step="5" />
+  <div class="kelly-grid" style="margin-top:10px">
+    <div class="kelly-cell" style="border-top:3px solid var(--tort)"><div class="lbl">эффективно независимых ставок</div><div class="val" id="corr-neff">—</div></div>
+    <div class="kelly-cell" style="border-top:3px solid var(--hare)"><div class="lbl">риск от риска одной ставки</div><div class="val" id="corr-risk">—</div></div>
+  </div>
+  <div class="reveal" id="corr-reveal" style="margin-top:14px"></div>
+</div>
+
+<p>
+  Главное число тут — «эффективно независимых ставок»: десять ставок при корреляции 50% — это эффективно меньше двух независимых. Ты думал, что разложился на десять, а по факту почти все яйца в одной корзине, просто корзина выглядит как десять. Прямо к твоим связкам: если они в одной нише, на одном источнике трафика, на одном механизме — они коррелируют, и заход в пять штук «по 60к» — это не пять ставок, а одна на 300к. Настоящая защита появляется только когда связки правда независимы (разные ниши, источники, механики) — тогда спред режет риск, как обещано.
+</p>
+
+<!-- ============================================================
+     SCENE 12 — Критерий Келли
+============================================================ -->
+<h2><span class="num">12</span>Критерий Келли</h2>
 <p>
   Понятно, что ставить надо НА что-то — но какой долей капитала? Возьмём простую игру. На каждом ходу ставишь часть капитала. С вероятностью p твоя ставка удваивается, с вероятностью 1−p ты её теряешь. Шанс p ты задашь сам верхним слайдером — это твой «edge», то, насколько ты вообще уверен в этой ставке.
 </p>
@@ -743,7 +789,7 @@
 <!-- ============================================================
      SCENE 10 — Время и разорение
 ============================================================ -->
-<h2><span class="num">12</span>Время и разорение</h2>
+<h2><span class="num">13</span>Время и разорение</h2>
 <p>
   Последняя контр-интуитивная вещь, и одна из самых важных. Кажется, что 5% годовой шанс плохого исхода — это «почти безопасно». На самом деле 5% в год — это 23% за пять лет, 40% за десять, 64% за двадцать. Время — главный враг любого постоянного риска, даже маленького.
 </p>
@@ -780,7 +826,7 @@
 <!-- ============================================================
      SCENE 11 — Конвексность
 ============================================================ -->
-<h2><span class="num">13</span>Конвексность — форма твоей ставки</h2>
+<h2><span class="num">14</span>Конвексность — форма твоей ставки</h2>
 <p>
   У каждой позиции есть «форма» — график того, как твой результат меняется в зависимости от того, насколько реальность отошла от ожидания. Чаще всего эта форма — прямая: реальность сдвинулась на 5%, ты тоже на 5%. Но есть две другие интересные формы, и они объясняют половину магии штанги.
 </p>
@@ -810,7 +856,7 @@
 <!-- ============================================================
      SCENE 12 — Байесовское обновление
 ============================================================ -->
-<h2><span class="num">14</span>Байесовское обновление</h2>
+<h2><span class="num">15</span>Байесовское обновление</h2>
 <p>
   Калибровка (сцена 8) научила тебя честно оценивать вероятности. Но это только половина дела. Вторая половина — уметь МЕНЯТЬ свою оценку, когда приходит новая информация. Большинство людей этого не делают: они либо застревают на первой интуиции, либо, наоборот, дёргаются от каждого сигнала.
 </p>
@@ -862,7 +908,7 @@
 <!-- ============================================================
      SCENE 13 — Порядок имеет значение
 ============================================================ -->
-<h2><span class="num">15</span>Порядок имеет значение</h2>
+<h2><span class="num">16</span>Порядок имеет значение</h2>
 <p>
   Последняя контр-интуитивная штука. У двух траекторий одинаковая сумма доходностей за 10 лет — пять «хороших» (+15%) и пять «плохих» (−10%). В одной хорошие годы идут первыми, в другой — последними. По арифметике итог должен быть одинаковым.
 </p>
@@ -905,9 +951,73 @@
 </p>
 
 <!-- ============================================================
-     SCENE 14 — Что дальше
+     SCENE 16 — Математика просадки
 ============================================================ -->
-<h2><span class="num">16</span>Что дальше</h2>
+<h2><span class="num">17</span>Математика просадки</h2>
+<p>
+  Простая, но недооценённая вещь. Потерять и отыграть — несимметрично. Если ты упал на X%, то чтобы вернуться, нужен рост БОЛЬШЕ, чем X% — потому что отыгрываешь ты уже с меньшей базы. И чем глубже яма, тем сильнее это расходится.
+</p>
+
+<div class="toy" id="scene16">
+  <canvas id="dd-canvas" width="640" height="180"></canvas>
+  <div class="kelly-line">
+    <span>Насколько просел капитал</span>
+    <span class="kelly-val">−<span id="dd-dv">50</span>%</span>
+  </div>
+  <input type="range" id="dd-slider" min="5" max="95" value="50" step="1" />
+  <div class="kelly-grid" style="margin-top:10px">
+    <div class="kelly-cell"><div class="lbl">осталось от 1000</div><div class="val" id="dd-cap">—</div></div>
+    <div class="kelly-cell" style="border-top:3px solid var(--hare)"><div class="lbl">нужно отыграть</div><div class="val" id="dd-need">—</div></div>
+  </div>
+  <div class="reveal" id="dd-reveal" style="margin-top:14px"></div>
+</div>
+
+<p>
+  Вот почему обнуление фатально (из −100% не вытащит никакой плюс) и почему глубокие просадки опаснее, чем кажутся: −20% лечится ростом +25%, а −50% требует уже +100%, −80% — целых +400%. Кривая взмывает у правого края. Прямо к твоему фонду: серия неудачных связок, утащившая его к 37% (−63%), требует уже +170%, чтобы вернуться. Защита от глубокой ямы стоит дороже, чем погоня за высоким пиком — выбираться из ямы экспоненциально труднее, чем в неё падать.
+</p>
+
+<!-- ============================================================
+     SCENE 17 — Базовые частоты
+============================================================ -->
+<h2><span class="num">18</span>Базовые частоты: взгляд снаружи</h2>
+<p>
+  Последний инструмент, и он бьёт ровно в то, на чём висели наши расчёты по Келли. Когда ты оцениваешь шансы своей затеи, ты смотришь «изнутри»: вот мой план, мои усилия, мой оптимизм. А есть «взгляд снаружи»: что обычно случается с тысячами таких же затей. Канеман и Тэтлок показали — надёжная оценка начинается с базовой частоты, а не с интуиции. Люди делают наоборот.
+</p>
+<p>
+  Выбери тип затеи, поставь свою интуитивную оценку успеха слайдером — и сравни её с базовой частотой.
+</p>
+
+<div class="toy" id="scene17">
+  <div class="decision-grid">
+    <button class="decision" data-br="rest">Новый ресторан доживёт до 5 лет</button>
+    <button class="decision" data-br="startup">Стартап станет успешным</button>
+    <button class="decision" data-br="product">Новый продукт выживет 2+ года</button>
+    <button class="decision" data-br="smb">Малый бизнес доживёт до 5 лет</button>
+  </div>
+  <div class="kelly-line" style="margin-top:8px">
+    <span>Твоя интуитивная оценка успеха</span>
+    <span class="kelly-val"><span id="br-gv">70</span>%</span>
+  </div>
+  <input type="range" id="br-slider" min="1" max="99" value="70" step="1" />
+  <div class="br-bar">
+    <div class="br-mark gut" id="br-gut"></div>
+    <div class="br-mark base" id="br-base" style="display:none"></div>
+  </div>
+  <div class="kelly-grid" style="margin-top:8px">
+    <div class="kelly-cell" style="border-top:3px solid #6889B0"><div class="lbl">твоя интуиция</div><div class="val" id="br-gut-v">70%</div></div>
+    <div class="kelly-cell" style="border-top:3px solid var(--hare)"><div class="lbl">базовая частота</div><div class="val" id="br-base-v">—</div></div>
+  </div>
+  <div class="reveal" id="br-reveal" style="margin-top:14px">Выбери тип затеи выше.</div>
+</div>
+
+<p>
+  Базовые частоты тут — ориентир по разным оценкам, не абсолютная истина; но порядок честный, и разрыв с интуицией почти всегда большой. Правильный ход: начни с базовой частоты и сдвигай её на свою специфику — но скромно, на единицы-десяток пунктов, а не с 20% до 80%. Прямо к твоему случаю: «30% связок стреляет» — это взгляд изнутри. Снаружи это надо ИЗМЕРИТЬ на реальной истории всех связок (включая забытые провалы — их обычно не считают), и почти наверняка выйдет скромнее. От измеренной цифры и считай Келли, а не от оптимистичной памяти.
+</p>
+
+<!-- ============================================================
+     SCENE 18 — Что дальше
+============================================================ -->
+<h2><span class="num">19</span>Что дальше</h2>
 <p>
   Если из всего, что ты только что прожил, нужно запомнить одно — пусть это будет пять простых вещей:
 </p>
@@ -927,8 +1037,8 @@
 </p>
 
 <footer>
-  <p>Шестнадцать сцен пройдены. Сетку не нужно запоминать — она становится привычкой через практику.</p>
-  <p style="margin-top:18px">«Сетка» · v1.3 · черновик · open source</p>
+  <p>Девятнадцать сцен пройдены. Сетку не нужно запоминать — она становится привычкой через практику.</p>
+  <p style="margin-top:18px">«Сетка» · v1.5 · черновик · open source</p>
 </footer>
 
 </main>
@@ -2106,6 +2216,162 @@
   }
   $("erg-slider").addEventListener("input", update);
   $("erg-shuffle").addEventListener("click", function(){ curSeed=Math.floor(Math.random()*1000000)+1; update(); });
+  setTimeout(function(){ setup(); update(); window.addEventListener("resize",function(){setup();update();}); },0);
+})();
+
+/* ========================================================
+   SCENE 16 — Математика просадки
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  function fmt(n){ return Math.round(n).toLocaleString("ru-RU") }
+  function recov(d){ return d/(1-d); }
+  var canvas=$("dd-canvas"), ctx, dims;
+  function setup(){
+    var dpr=window.devicePixelRatio||1, r=canvas.getBoundingClientRect();
+    canvas.width=r.width*dpr; canvas.height=r.height*dpr;
+    ctx=canvas.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    dims={w:r.width,h:r.height};
+  }
+  function draw(curD){
+    var w=dims.w, h=dims.h, yMax=5;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle="#FFFEFA"; ctx.fillRect(0,0,w,h);
+    function X(d){ return d/0.95*(w-44)+36; }
+    function Y(g){ return h-22 - Math.min(g,yMax)/yMax*(h-34); }
+    ctx.font="10px -apple-system, sans-serif";
+    for(var g=1; g<=5; g++){
+      var y=Y(g);
+      ctx.strokeStyle="#EFE8D8"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(36,y); ctx.lineTo(w,y); ctx.stroke();
+      ctx.fillStyle="#A89B85"; ctx.textAlign="left";
+      ctx.fillText("+"+(g*100)+"%", 2, y+3);
+    }
+    ctx.strokeStyle="#D86E54"; ctx.lineWidth=2; ctx.beginPath();
+    var first=true;
+    for(var d=0.01; d<=0.951; d+=0.01){
+      var x=X(d), y=Y(recov(d));
+      if(first){ctx.moveTo(x,y); first=false;} else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    var px=X(curD), py=Y(recov(curD));
+    ctx.fillStyle="#2A2622"; ctx.beginPath(); ctx.arc(px,py,5,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle="white"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,5,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle="#A89B85"; ctx.textAlign="center";
+    [20,50,80].forEach(function(t){ ctx.fillText("−"+t+"%", X(t/100), h-5); });
+  }
+  function update(){
+    var d=+$("dd-slider").value/100;
+    $("dd-dv").textContent=$("dd-slider").value;
+    $("dd-cap").textContent=fmt(1000*(1-d));
+    var g=recov(d);
+    $("dd-need").textContent="+"+fmt(g*100)+"%";
+    draw(d);
+    var dp=Math.round(d*100), gp=fmt(g*100);
+    var msg;
+    if(d<0.25) msg="Неглубокая просадка отыгрывается легко: −"+dp+"% лечится ростом +"+gp+"%.";
+    else if(d<0.55) msg="Уже заметная асимметрия: −"+dp+"% требует +"+gp+"%, чтобы вернуться к старту.";
+    else if(d<0.85) msg="Глубокая яма: −"+dp+"% требует роста +"+gp+"%. Смотри, как кривая взмывает у правого края.";
+    else msg="Почти ноль: −"+dp+"% требует +"+gp+"%. Чем ближе к −100%, тем ближе нужный отыгрыш к бесконечности.";
+    $("dd-reveal").textContent=msg;
+  }
+  $("dd-slider").addEventListener("input", update);
+  setTimeout(function(){ setup(); update(); window.addEventListener("resize",function(){setup();update();}); },0);
+})();
+
+/* ========================================================
+   SCENE 17 — Базовые частоты
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  var DATA={ rest:25, startup:10, product:25, smb:50 };
+  var cur=null;
+  function update(){
+    var gut=+$("br-slider").value;
+    $("br-gv").textContent=gut;
+    $("br-gut-v").textContent=gut+"%";
+    $("br-gut").style.left=gut+"%";
+    if(cur===null){ $("br-reveal").textContent="Выбери тип затеи выше, чтобы увидеть базовую частоту."; return; }
+    var base=DATA[cur];
+    $("br-base").style.display="block";
+    $("br-base").style.left=base+"%";
+    $("br-base-v").textContent=base+"%";
+    var gap=gut-base;
+    var msg;
+    if(gap>40) msg="Разрыв "+gap+" пунктов. Твоя интуиция в разы оптимистичнее того, что обычно случается — классический «взгляд изнутри»: ты считаешь свой план, а не статистику похожих планов.";
+    else if(gap>15) msg="Разрыв "+gap+" пунктов — заметная переоценка. Целься ближе к базовой частоте, корректируй на свою специфику скромно.";
+    else if(gap>=-5) msg="Ты примерно на уровне базовой частоты — редкая трезвость. Слегка вверх можно, если у тебя есть реальное измеримое преимущество.";
+    else msg="Ты оцениваешь себя НИЖЕ базовой частоты — возможно, перестраховываешься.";
+    $("br-reveal").textContent=msg;
+  }
+  document.querySelectorAll("#scene17 .decision").forEach(function(b){
+    b.addEventListener("click", function(){
+      document.querySelectorAll("#scene17 .decision").forEach(function(d){d.classList.remove("active")});
+      b.classList.add("active");
+      cur=b.getAttribute("data-br");
+      update();
+    });
+  });
+  $("br-slider").addEventListener("input", update);
+  update();
+})();
+
+/* ========================================================
+   SCENE 11 — Корреляция
+======================================================== */
+(function(){
+  function $(id){return document.getElementById(id)}
+  function rng(seed){ return function(){ seed=(seed*9301+49297)%233280; return seed/233280; }; }
+  var MU=8, SIG=30;
+  var Z=[];
+  (function(){ var r=rng(4242); for(var i=0;i<60;i++){ var s=0; for(var k=0;k<6;k++)s+=r(); Z.push(s-3); } })();
+  var canvas=$("corr-canvas"), ctx, dims;
+  function setup(){
+    var dpr=window.devicePixelRatio||1, r=canvas.getBoundingClientRect();
+    canvas.width=r.width*dpr; canvas.height=r.height*dpr;
+    ctx=canvas.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    dims={w:r.width,h:r.height};
+  }
+  function draw(N, factor){
+    var w=dims.w, h=dims.h, xMin=-70, xMax=90;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle="#FFFEFA"; ctx.fillRect(0,0,w,h);
+    function X(v){ return (v-xMin)/(xMax-xMin)*(w-16)+8; }
+    var x0=X(0);
+    ctx.strokeStyle="#D8CFB9"; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(x0,16); ctx.lineTo(x0,h-16); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#A89B85"; ctx.font="10px -apple-system, sans-serif"; ctx.textAlign="center";
+    ctx.fillText("0%", x0, h-3);
+    ctx.textAlign="left"; ctx.fillText("← убыток", 8, h-3);
+    ctx.textAlign="right"; ctx.fillText("прибыль →", w-4, h-3);
+    ctx.fillStyle="#7A6F62"; ctx.font="11px -apple-system, sans-serif"; ctx.textAlign="left";
+    ctx.fillText("одна ставка", 8, 13);
+    ctx.fillText("твой портфель из "+N+" ставок", 8, h/2+12);
+    function row(yStart, scale){
+      for(var i=0;i<Z.length;i++){
+        var v=MU+SIG*scale*Z[i], x=X(v), y=yStart+(i%9)*4;
+        ctx.fillStyle = v<0 ? "rgba(216,110,84,0.55)" : "rgba(107,158,95,0.55)";
+        ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2); ctx.fill();
+      }
+    }
+    row(20, 1);
+    row(h/2+18, factor);
+  }
+  function update(){
+    var N=+$("corr-n").value, rho=+$("corr-r").value/100;
+    $("corr-nv").textContent=N; $("corr-rv").textContent=Math.round(rho*100);
+    var factor=Math.sqrt((1+(N-1)*rho)/N);
+    var neff=1/(factor*factor);
+    $("corr-neff").textContent=neff.toFixed(1);
+    $("corr-risk").textContent=Math.round(factor*100)+"%";
+    draw(N, factor);
+    var msg;
+    if(N===1) msg="Одна ставка — диверсификации нет в принципе. Добавь ставок слайдером.";
+    else if(rho>=0.85) msg="Корреляция почти полная: "+N+" ставок ведут себя как ~"+neff.toFixed(1)+" независимых. Нижнее облако расползлось почти как у одной ставки — спред не защищает.";
+    else if(rho>=0.35) msg="Корреляция средняя: из "+N+" ставок эффективно только ~"+neff.toFixed(1)+" независимых. Защита частичная — далеко не та, что кажется по числу ставок.";
+    else msg="Низкая корреляция: "+N+" ставок дают эффективно ~"+neff.toFixed(1)+" независимых, риск всего "+Math.round(factor*100)+"% от одиночной. Вот так выглядит настоящая диверсификация — нижнее облако сжалось к центру.";
+    $("corr-reveal").textContent=msg;
+  }
+  $("corr-n").addEventListener("input", update);
+  $("corr-r").addEventListener("input", update);
   setTimeout(function(){ setup(); update(); window.addEventListener("resize",function(){setup();update();}); },0);
 })();
 </script>
